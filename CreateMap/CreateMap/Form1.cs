@@ -26,6 +26,9 @@ namespace CreateMap
 
         private void Form1_Load(object sender, EventArgs e)
         {
+            this.alignType1.Select();
+
+            this.imageType1.Select();
         }
 
 
@@ -134,7 +137,7 @@ namespace CreateMap
             return name;
         }
 
-        private int compareFileInfo(FileInfo a, FileInfo b)
+        private int compareXYFileInfo(FileInfo a, FileInfo b)
         {
 
             String[] aHV = getHVIndex(a);
@@ -158,6 +161,57 @@ namespace CreateMap
             int hIndex2 = Convert.ToInt32(bHV[0]);
 
             int vIndex2 = Convert.ToInt32(bHV[1]);
+
+            if (hIndex1 < hIndex2)
+            {
+                return -1;
+            }
+            else if (hIndex1 > hIndex2)
+            {
+                return 1;
+            }
+            else
+            {
+                if (vIndex1 < vIndex2)
+                {
+                    return -1;
+                }
+                else if (vIndex1 > vIndex2)
+                {
+                    return 1;
+                }
+                else
+                {
+                    return 0;
+                }
+            }
+
+        }
+
+        private int compareYXFileInfo(FileInfo a, FileInfo b)
+        {
+
+            String[] aHV = getHVIndex(a);
+
+            String[] bHV = getHVIndex(b);
+
+            if (aHV == null || aHV.Length < 2)
+            {
+                return -1;
+            }
+
+            if (bHV == null || bHV.Length < 2)
+            {
+                return 1;
+            }
+
+            int vIndex1 = Convert.ToInt32(aHV[0]);
+
+            int hIndex1 = Convert.ToInt32(aHV[1]);
+
+            int vIndex2 = Convert.ToInt32(bHV[0]);
+
+            int hIndex2 = Convert.ToInt32(bHV[1]);
 
             if (hIndex1 < hIndex2)
             {
@@ -229,6 +283,8 @@ namespace CreateMap
                 return;
             }
 
+            this.confirmOptions();
+
             generateOneMapFolder(this.sourceText.Text, this.outputPathText.Text);
 
             MessageBox.Show("完成");
@@ -246,7 +302,7 @@ namespace CreateMap
 
             foreach (FileInfo temp in ret)
             {
-                if (temp.FullName.IndexOf("_") == -1 || temp.FullName.ToLower().IndexOf(".jpg") == -1)
+                if (temp.FullName.ToLower().IndexOf(this.imageType) == -1)
                 {
                     continue;
                 }
@@ -254,8 +310,24 @@ namespace CreateMap
                 files.Add(temp);
             }
 
-            files.Sort(compareFileInfo);
-            //Array.Sort(files, compareFileInfo);
+            if (this.alignType == XY_ALIGN_TYPE)
+            {
+                drawXYType(files, path, outputPath);
+            }
+            else if (this.alignType == YX_ALIGN_TYPE)
+            {
+                drawYXType(files, path, outputPath);
+            }
+            else if (this.alignType == SPLIT_ALIGN_TYPE)
+            {
+                drawSplitType(files, path, outputPath);
+            }
+            
+        }
+
+        private void drawXYType(List<FileInfo> files, String path, String outputPath)
+        {
+            files.Sort(compareXYFileInfo);
 
             int totalWidth = 0;
 
@@ -320,6 +392,192 @@ namespace CreateMap
             drawToImage(bitmap, files, outputPath, folderName);
         }
 
+        private void drawYXType(List<FileInfo> files, String path, String outputPath)
+        {
+            files.Sort(compareXYFileInfo);
+
+            int totalWidth = 0;
+
+            int totalHeight = 0;
+
+            int lastHIndex = 0;
+
+            int lastVIndex = 0;
+
+            int lastImageWidth = 0;
+
+            int lastImageHeight = 0;
+
+            int nowX = 0;
+
+            int nowY = 0;
+
+            foreach (FileInfo NextFile in files)
+            {
+                Bitmap image1 = (Bitmap)Image.FromFile(NextFile.FullName, true);
+
+                String[] data = getHVIndex(NextFile);
+
+                if (data != null && data.Length >= 2)
+                {
+
+                    int hIndex = Convert.ToInt32(data[0]);
+
+                    int vIndex = Convert.ToInt32(data[1]);
+
+                    if (hIndex > lastHIndex)
+                    {
+                        if (totalWidth == 0)
+                        {
+                            totalWidth = nowX;
+                        }
+
+                        nowX = 0;
+
+                        nowY += lastImageHeight;
+                    }
+
+                    lastHIndex = hIndex;
+
+                    lastVIndex = vIndex;
+
+                    lastImageWidth = image1.Width;
+
+                    lastImageHeight = image1.Height;
+
+                    nowX += image1.Width;
+                }
+
+            }
+
+            totalHeight = nowY + lastImageHeight;
+
+            Bitmap bitmap = new Bitmap(Convert.ToInt32(totalWidth), Convert.ToInt32(totalHeight), System.Drawing.Imaging.PixelFormat.Format16bppRgb565);
+
+            String folderName = getFoldeName(path);
+
+            drawToImage(bitmap, files, outputPath, folderName);
+        }
+
+        private void drawSplitType(List<FileInfo> files, String path, String outputPath)
+        {
+            files.Sort(compareXYFileInfo);
+
+            int totalWidth = 0;
+
+            int totalHeight = 0;
+
+            int lastHIndex = 0;
+
+            int lastVIndex = 0;
+
+            int lastImageWidth = 0;
+
+            int lastImageHeight = 0;
+
+            int nowX = 0;
+
+            int nowY = 0;
+
+            foreach (FileInfo NextFile in files)
+            {
+                Bitmap image1 = (Bitmap)Image.FromFile(NextFile.FullName, true);
+
+                String[] data = getHVIndex(NextFile);
+
+                if (data != null && data.Length >= 2)
+                {
+
+                    int hIndex = Convert.ToInt32(data[0]);
+
+                    int vIndex = Convert.ToInt32(data[1]);
+
+                    if (hIndex > lastHIndex)
+                    {
+                        if (totalWidth == 0)
+                        {
+                            totalWidth = nowX;
+                        }
+
+                        nowX = 0;
+
+                        nowY += lastImageHeight;
+                    }
+
+                    lastHIndex = hIndex;
+
+                    lastVIndex = vIndex;
+
+                    lastImageWidth = image1.Width;
+
+                    lastImageHeight = image1.Height;
+
+                    nowX += image1.Width;
+                }
+
+            }
+
+            totalHeight = nowY + lastImageHeight;
+
+            Bitmap bitmap = new Bitmap(Convert.ToInt32(totalWidth), Convert.ToInt32(totalHeight), System.Drawing.Imaging.PixelFormat.Format16bppRgb565);
+
+            String folderName = getFoldeName(path);
+
+            drawToImage(bitmap, files, outputPath, folderName);
+        }
+
+        private void confirmOptions()
+        {
+            if (this.alignType1.Checked)
+            {
+                alignType = XY_ALIGN_TYPE;
+            }
+            else if (this.alignType2.Checked)
+            {
+                alignType = YX_ALIGN_TYPE;
+            }
+            else if (this.alignType3.Checked)
+            {
+                alignType = SPLIT_ALIGN_TYPE;
+
+                splitX = int.Parse(this.xGridText.Text);
+                splitY = int.Parse(this.yGridText.Text);
+            }
+
+            if (this.imageType1.Checked)
+            {
+                this.imageType = JPG_TYPE;
+            }
+            else if (this.imageType2.Checked)
+            {
+                this.imageType = PNG_TYPE;
+            }
+            else if (this.imageType3.Checked)
+            {
+                this.imageType = BMP_TYPE;
+            }
+        }
+
+        private const int XY_ALIGN_TYPE = 1;
+
+        private const int YX_ALIGN_TYPE = 2;
+
+        private const int SPLIT_ALIGN_TYPE = 3;
+
+        private const String JPG_TYPE = ".jpg";
+
+        private const String PNG_TYPE = ".png";
+
+        private const String BMP_TYPE = ".bmp";
+
+        private String imageType;
+
+        private int alignType;
+
+        private int splitX;
+
+        private int splitY;
+
         private void mutilStartClick(object sender, EventArgs e)
         {
             if (this.mapParentFolderText.Text == "")
@@ -333,6 +591,14 @@ namespace CreateMap
                 MessageBox.Show("请选择输出目录");
                 return;
             }
+
+            if (this.alignType3.Checked)
+            {
+                MessageBox.Show("此模式只适用单张地图");
+                return;
+            }
+
+            this.confirmOptions();
 
             DirectoryInfo TheFolder = new DirectoryInfo(this.mapParentFolderText.Text);
 
@@ -387,6 +653,16 @@ namespace CreateMap
 
                 this.parentFolderOutputText.Text = foldPath;
             }
+        }
+
+        private void checkedListBox1_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void textBox1_TextChanged(object sender, EventArgs e)
+        {
+
         }
 
     }
