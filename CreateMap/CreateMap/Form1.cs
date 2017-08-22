@@ -10,6 +10,7 @@ using System.IO;
 using System.Windows.Forms;
 using System.Text.RegularExpressions;
 using System.Threading;
+using CreateMap.writeFile;
 
 namespace CreateMap
 {
@@ -52,81 +53,7 @@ namespace CreateMap
 
         private int mapTileNowCount = 0;
 
-        private void drawToImage(Bitmap bitmap, List<FileInfo> files, String outputPath, String foldName)
-        {
-            Graphics formGraphics = Graphics.FromImage(bitmap);
-
-            int lastHIndex = 0;
-
-            int lastVIndex = 0;
-
-            int lastImageWidth = 0;
-
-            int lastImageHeight = 0;
-
-            int nowX = 0;
-
-            int nowY = 0;
-
-            mapTileNowCount = 0;
-
-            mapTileTotal = files.Count;
-
-            foreach (FileInfo NextFile in files)
-            {
-                Bitmap image1 = (Bitmap)Image.FromFile(NextFile.FullName, true);
-
-                String[] data = getHVIndex(NextFile);
-
-                if (data != null && data.Length >= 2)
-                {
-
-                    int hIndex = Convert.ToInt32(data[0]);
-
-                    int vIndex = Convert.ToInt32(data[1]);
-
-                    if (hIndex > lastHIndex)
-                    {
-                        nowX = 0;
-
-                        nowY += lastImageHeight;
-                    }
-
-
-                    TextureBrush texture = new TextureBrush(image1);
-                    texture.WrapMode = System.Drawing.Drawing2D.WrapMode.Tile;
-
-                    formGraphics.FillRectangle(texture,
-                        new RectangleF(nowX, nowY, image1.Width, image1.Height));
-
-                    lastHIndex = hIndex;
-
-                    lastVIndex = vIndex;
-
-                    lastImageWidth = image1.Width;
-
-                    lastImageHeight = image1.Height;
-
-                    nowX += image1.Width;
-                }
-
-                mapTileNowCount++;
-
-                this.tileText.Text = mapTileNowCount + "/" + mapTileTotal;
-
-                this.tileText.Invalidate();
-                this.tileText.Update();
-                //tileText.refresh();
-                Application.DoEvents();
-
-            }
-
-            String outputPathString = outputPath + "\\" + foldName + ".jpg";
-            bitmap.Save(outputPathString);
-
-            bitmap.Dispose();
-        }
-
+     
         private String getFoldeName(String folderName)
         {
 
@@ -135,124 +62,6 @@ namespace CreateMap
             String name = folderName.Substring(index1 + 1, folderName.Length - index1 - 1);
 
             return name;
-        }
-
-        private int compareXYFileInfo(FileInfo a, FileInfo b)
-        {
-
-            String[] aHV = getHVIndex(a);
-
-            String[] bHV = getHVIndex(b);
-
-            if (aHV == null || aHV.Length < 2)
-            {
-                return -1;
-            }
-
-            if (bHV == null || bHV.Length < 2)
-            {
-                return 1;
-            }
-
-            int hIndex1 = Convert.ToInt32(aHV[0]);
-
-            int vIndex1 = Convert.ToInt32(aHV[1]);
-
-            int hIndex2 = Convert.ToInt32(bHV[0]);
-
-            int vIndex2 = Convert.ToInt32(bHV[1]);
-
-            if (hIndex1 < hIndex2)
-            {
-                return -1;
-            }
-            else if (hIndex1 > hIndex2)
-            {
-                return 1;
-            }
-            else
-            {
-                if (vIndex1 < vIndex2)
-                {
-                    return -1;
-                }
-                else if (vIndex1 > vIndex2)
-                {
-                    return 1;
-                }
-                else
-                {
-                    return 0;
-                }
-            }
-
-        }
-
-        private int compareYXFileInfo(FileInfo a, FileInfo b)
-        {
-
-            String[] aHV = getHVIndex(a);
-
-            String[] bHV = getHVIndex(b);
-
-            if (aHV == null || aHV.Length < 2)
-            {
-                return -1;
-            }
-
-            if (bHV == null || bHV.Length < 2)
-            {
-                return 1;
-            }
-
-            int vIndex1 = Convert.ToInt32(aHV[0]);
-
-            int hIndex1 = Convert.ToInt32(aHV[1]);
-
-            int vIndex2 = Convert.ToInt32(bHV[0]);
-
-            int hIndex2 = Convert.ToInt32(bHV[1]);
-
-            if (hIndex1 < hIndex2)
-            {
-                return -1;
-            }
-            else if (hIndex1 > hIndex2)
-            {
-                return 1;
-            }
-            else
-            {
-                if (vIndex1 < vIndex2)
-                {
-                    return -1;
-                }
-                else if (vIndex1 > vIndex2)
-                {
-                    return 1;
-                }
-                else
-                {
-                    return 0;
-                }
-            }
-
-        }
-
-        private String[] getHVIndex(FileInfo file)
-        {
-            MatchCollection matches = rgx.Matches(file.FullName);
-
-            if (matches.Count > 0)
-            {
-                Match match = matches[0];
-
-                String[] data = match.Value.Split(splits);
-
-                return data;
-            }
-
-            return null;
         }
 
         private void outputBtnClick(object sender, EventArgs e)
@@ -294,6 +103,11 @@ namespace CreateMap
         {
             DirectoryInfo TheFolder = new DirectoryInfo(path);
 
+            tileText.Text = "加载文件中";
+            tileText.Invalidate();
+            tileText.Update();
+            //tileText.refresh();
+            Application.DoEvents();
 
             //遍历文件
             List<FileInfo> files = new List<FileInfo>();
@@ -307,225 +121,48 @@ namespace CreateMap
                     continue;
                 }
 
+                if (this.alignType == XY_ALIGN_TYPE || this.alignType == YX_ALIGN_TYPE)
+                {
+                    if (temp.FullName.IndexOf("_") == -1)
+                    {
+                        continue;
+                    }
+                }
+
                 files.Add(temp);
             }
 
+            BaseWriteFile write = null;
             if (this.alignType == XY_ALIGN_TYPE)
             {
-                drawXYType(files, path, outputPath);
+                //drawXYType(files, path, outputPath);
+                write = new XYWriteFile();
             }
             else if (this.alignType == YX_ALIGN_TYPE)
             {
-                drawYXType(files, path, outputPath);
+                write = new YXWriteFile();
             }
             else if (this.alignType == SPLIT_ALIGN_TYPE)
             {
-                drawSplitType(files, path, outputPath);
-            }
-            
-        }
+                write = new NumberWriteFile();
 
-        private void drawXYType(List<FileInfo> files, String path, String outputPath)
-        {
-            files.Sort(compareXYFileInfo);
-
-            int totalWidth = 0;
-
-            int totalHeight = 0;
-
-            int lastHIndex = 0;
-
-            int lastVIndex = 0;
-
-            int lastImageWidth = 0;
-
-            int lastImageHeight = 0;
-
-            int nowX = 0;
-
-            int nowY = 0;
-
-            foreach (FileInfo NextFile in files)
-            {
-                Bitmap image1 = (Bitmap)Image.FromFile(NextFile.FullName, true);
-
-                String[] data = getHVIndex(NextFile);
-
-                if (data != null && data.Length >= 2)
+                if (this.xGridText.Text == "" || this.yGridText.Text == "")
                 {
+                    MessageBox.Show("请输入行列数目");
 
-                    int hIndex = Convert.ToInt32(data[0]);
-
-                    int vIndex = Convert.ToInt32(data[1]);
-
-                    if (hIndex > lastHIndex)
-                    {
-                        if (totalWidth == 0)
-                        {
-                            totalWidth = nowX;
-                        }
-
-                        nowX = 0;
-
-                        nowY += lastImageHeight;
-                    }
-
-                    lastHIndex = hIndex;
-
-                    lastVIndex = vIndex;
-
-                    lastImageWidth = image1.Width;
-
-                    lastImageHeight = image1.Height;
-
-                    nowX += image1.Width;
+                    return;
                 }
 
+                (write as NumberWriteFile).setHVGrids(int.Parse(this.xGridText.Text), int.Parse(this.yGridText.Text));
             }
 
-            totalHeight = nowY + lastImageHeight;
-
-            Bitmap bitmap = new Bitmap(Convert.ToInt32(totalWidth), Convert.ToInt32(totalHeight), System.Drawing.Imaging.PixelFormat.Format16bppRgb565);
-
-            String folderName = getFoldeName(path);
-
-            drawToImage(bitmap, files, outputPath, folderName);
-        }
-
-        private void drawYXType(List<FileInfo> files, String path, String outputPath)
-        {
-            files.Sort(compareXYFileInfo);
-
-            int totalWidth = 0;
-
-            int totalHeight = 0;
-
-            int lastHIndex = 0;
-
-            int lastVIndex = 0;
-
-            int lastImageWidth = 0;
-
-            int lastImageHeight = 0;
-
-            int nowX = 0;
-
-            int nowY = 0;
-
-            foreach (FileInfo NextFile in files)
+            if (write != null)
             {
-                Bitmap image1 = (Bitmap)Image.FromFile(NextFile.FullName, true);
-
-                String[] data = getHVIndex(NextFile);
-
-                if (data != null && data.Length >= 2)
-                {
-
-                    int hIndex = Convert.ToInt32(data[0]);
-
-                    int vIndex = Convert.ToInt32(data[1]);
-
-                    if (hIndex > lastHIndex)
-                    {
-                        if (totalWidth == 0)
-                        {
-                            totalWidth = nowX;
-                        }
-
-                        nowX = 0;
-
-                        nowY += lastImageHeight;
-                    }
-
-                    lastHIndex = hIndex;
-
-                    lastVIndex = vIndex;
-
-                    lastImageWidth = image1.Width;
-
-                    lastImageHeight = image1.Height;
-
-                    nowX += image1.Width;
-                }
-
+                write.draw(files, path, outputPath, this.tileText);
             }
-
-            totalHeight = nowY + lastImageHeight;
-
-            Bitmap bitmap = new Bitmap(Convert.ToInt32(totalWidth), Convert.ToInt32(totalHeight), System.Drawing.Imaging.PixelFormat.Format16bppRgb565);
-
-            String folderName = getFoldeName(path);
-
-            drawToImage(bitmap, files, outputPath, folderName);
         }
 
-        private void drawSplitType(List<FileInfo> files, String path, String outputPath)
-        {
-            files.Sort(compareXYFileInfo);
-
-            int totalWidth = 0;
-
-            int totalHeight = 0;
-
-            int lastHIndex = 0;
-
-            int lastVIndex = 0;
-
-            int lastImageWidth = 0;
-
-            int lastImageHeight = 0;
-
-            int nowX = 0;
-
-            int nowY = 0;
-
-            foreach (FileInfo NextFile in files)
-            {
-                Bitmap image1 = (Bitmap)Image.FromFile(NextFile.FullName, true);
-
-                String[] data = getHVIndex(NextFile);
-
-                if (data != null && data.Length >= 2)
-                {
-
-                    int hIndex = Convert.ToInt32(data[0]);
-
-                    int vIndex = Convert.ToInt32(data[1]);
-
-                    if (hIndex > lastHIndex)
-                    {
-                        if (totalWidth == 0)
-                        {
-                            totalWidth = nowX;
-                        }
-
-                        nowX = 0;
-
-                        nowY += lastImageHeight;
-                    }
-
-                    lastHIndex = hIndex;
-
-                    lastVIndex = vIndex;
-
-                    lastImageWidth = image1.Width;
-
-                    lastImageHeight = image1.Height;
-
-                    nowX += image1.Width;
-                }
-
-            }
-
-            totalHeight = nowY + lastImageHeight;
-
-            Bitmap bitmap = new Bitmap(Convert.ToInt32(totalWidth), Convert.ToInt32(totalHeight), System.Drawing.Imaging.PixelFormat.Format16bppRgb565);
-
-            String folderName = getFoldeName(path);
-
-            drawToImage(bitmap, files, outputPath, folderName);
-        }
-
+    
         private void confirmOptions()
         {
             if (this.alignType1.Checked)
