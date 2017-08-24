@@ -30,12 +30,8 @@
         {
             this.sourceBtn = new System.Windows.Forms.Button();
             this.targetBtn = new System.Windows.Forms.Button();
-            this.sourceText = new System.Windows.Forms.Label();
-            this.outputPathText = new System.Windows.Forms.Label();
             this.generateBtn = new System.Windows.Forms.Button();
             this.mutilButton = new System.Windows.Forms.Button();
-            this.parentFolderOutputText = new System.Windows.Forms.Label();
-            this.mapParentFolderText = new System.Windows.Forms.Label();
             this.button2 = new System.Windows.Forms.Button();
             this.button3 = new System.Windows.Forms.Button();
             this.processText = new System.Windows.Forms.Label();
@@ -52,6 +48,10 @@
             this.label2 = new System.Windows.Forms.Label();
             this.xGridText = new System.Windows.Forms.TextBox();
             this.yGridText = new System.Windows.Forms.TextBox();
+            this.sourceText = new System.Windows.Forms.TextBox();
+            this.outputPathText = new System.Windows.Forms.TextBox();
+            this.mapParentFolderText = new System.Windows.Forms.TextBox();
+            this.parentFolderOutputText = new System.Windows.Forms.TextBox();
             this.panel1.SuspendLayout();
             this.panel2.SuspendLayout();
             this.SuspendLayout();
@@ -76,22 +76,6 @@
             this.targetBtn.UseVisualStyleBackColor = true;
             this.targetBtn.Click += new System.EventHandler(this.outputBtnClick);
             // 
-            // sourceText
-            // 
-            this.sourceText.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.sourceText.Location = new System.Drawing.Point(154, 246);
-            this.sourceText.Name = "sourceText";
-            this.sourceText.Size = new System.Drawing.Size(551, 18);
-            this.sourceText.TabIndex = 2;
-            // 
-            // outputPathText
-            // 
-            this.outputPathText.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.outputPathText.Location = new System.Drawing.Point(154, 275);
-            this.outputPathText.Name = "outputPathText";
-            this.outputPathText.Size = new System.Drawing.Size(551, 18);
-            this.outputPathText.TabIndex = 3;
-            // 
             // generateBtn
             // 
             this.generateBtn.Location = new System.Drawing.Point(326, 314);
@@ -111,22 +95,6 @@
             this.mutilButton.Text = "多个地图开始";
             this.mutilButton.UseVisualStyleBackColor = true;
             this.mutilButton.Click += new System.EventHandler(this.mutilStartClick);
-            // 
-            // parentFolderOutputText
-            // 
-            this.parentFolderOutputText.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.parentFolderOutputText.Location = new System.Drawing.Point(154, 395);
-            this.parentFolderOutputText.Name = "parentFolderOutputText";
-            this.parentFolderOutputText.Size = new System.Drawing.Size(551, 18);
-            this.parentFolderOutputText.TabIndex = 8;
-            // 
-            // mapParentFolderText
-            // 
-            this.mapParentFolderText.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.mapParentFolderText.Location = new System.Drawing.Point(154, 366);
-            this.mapParentFolderText.Name = "mapParentFolderText";
-            this.mapParentFolderText.Size = new System.Drawing.Size(551, 18);
-            this.mapParentFolderText.TabIndex = 7;
             // 
             // button2
             // 
@@ -283,11 +251,47 @@
             this.yGridText.Size = new System.Drawing.Size(36, 21);
             this.yGridText.TabIndex = 20;
             // 
+            // sourceText
+            // 
+            this.sourceText.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.sourceText.Location = new System.Drawing.Point(156, 243);
+            this.sourceText.Name = "sourceText";
+            this.sourceText.Size = new System.Drawing.Size(551, 21);
+            this.sourceText.TabIndex = 21;
+            // 
+            // outputPathText
+            // 
+            this.outputPathText.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.outputPathText.Location = new System.Drawing.Point(156, 270);
+            this.outputPathText.Name = "outputPathText";
+            this.outputPathText.Size = new System.Drawing.Size(551, 21);
+            this.outputPathText.TabIndex = 22;
+            // 
+            // mapParentFolderText
+            // 
+            this.mapParentFolderText.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.mapParentFolderText.Location = new System.Drawing.Point(156, 363);
+            this.mapParentFolderText.Name = "mapParentFolderText";
+            this.mapParentFolderText.Size = new System.Drawing.Size(551, 21);
+            this.mapParentFolderText.TabIndex = 23;
+            // 
+            // parentFolderOutputText
+            // 
+            this.parentFolderOutputText.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.parentFolderOutputText.Location = new System.Drawing.Point(156, 392);
+            this.parentFolderOutputText.Name = "parentFolderOutputText";
+            this.parentFolderOutputText.Size = new System.Drawing.Size(551, 21);
+            this.parentFolderOutputText.TabIndex = 24;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(763, 505);
+            this.Controls.Add(this.parentFolderOutputText);
+            this.Controls.Add(this.mapParentFolderText);
+            this.Controls.Add(this.outputPathText);
+            this.Controls.Add(this.sourceText);
             this.Controls.Add(this.yGridText);
             this.Controls.Add(this.xGridText);
             this.Controls.Add(this.label2);
@@ -297,13 +301,9 @@
             this.Controls.Add(this.tileText);
             this.Controls.Add(this.processText);
             this.Controls.Add(this.mutilButton);
-            this.Controls.Add(this.parentFolderOutputText);
-            this.Controls.Add(this.mapParentFolderText);
             this.Controls.Add(this.button2);
             this.Controls.Add(this.button3);
             this.Controls.Add(this.generateBtn);
-            this.Controls.Add(this.outputPathText);
-            this.Controls.Add(this.sourceText);
             this.Controls.Add(this.targetBtn);
             this.Controls.Add(this.sourceBtn);
             this.Name = "Form1";
@@ -322,12 +322,8 @@
 
         private System.Windows.Forms.Button sourceBtn;
         private System.Windows.Forms.Button targetBtn;
-        private System.Windows.Forms.Label sourceText;
-        private System.Windows.Forms.Label outputPathText;
         private System.Windows.Forms.Button generateBtn;
         private System.Windows.Forms.Button mutilButton;
-        private System.Windows.Forms.Label parentFolderOutputText;
-        private System.Windows.Forms.Label mapParentFolderText;
         private System.Windows.Forms.Button button2;
         private System.Windows.Forms.Button button3;
         private System.Windows.Forms.Label processText;
@@ -344,6 +340,10 @@
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.TextBox xGridText;
         private System.Windows.Forms.TextBox yGridText;
+        private System.Windows.Forms.TextBox sourceText;
+        private System.Windows.Forms.TextBox outputPathText;
+        private System.Windows.Forms.TextBox mapParentFolderText;
+        private System.Windows.Forms.TextBox parentFolderOutputText;
     }
 }
 

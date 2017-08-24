@@ -128,10 +128,6 @@ namespace CreateMap.writeFile
         {
             Graphics formGraphics = Graphics.FromImage(bitmap);
 
-            int lastHIndex = 0;
-
-            int lastVIndex = 0;
-
             int lastImageWidth = 0;
 
             int lastImageHeight = 0;
@@ -150,8 +146,6 @@ namespace CreateMap.writeFile
             {
                 Bitmap image1 = (Bitmap)Image.FromFile(NextFile.FullName, true);
 
-                String[] data = getHVIndex(NextFile);
-
                 horizotalCount++;
 
                 if (horizotalCount > verticalNum)
@@ -168,6 +162,8 @@ namespace CreateMap.writeFile
 
                 formGraphics.FillRectangle(texture,
                     new RectangleF(nowX, nowY, image1.Width, image1.Height));
+
+                Console.WriteLine(NextFile.FullName + " x:" + nowX + " y:" + nowY);
 
                 lastImageWidth = image1.Width;
 
