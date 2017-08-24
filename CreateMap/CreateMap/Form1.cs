@@ -30,6 +30,8 @@ namespace CreateMap
             this.alignType1.Select();
 
             this.imageType1.Select();
+
+            this.outJpgType.Select();
         }
 
 
@@ -49,11 +51,6 @@ namespace CreateMap
             }
         }
 
-        private int mapTileTotal = 0;
-
-        private int mapTileNowCount = 0;
-
-     
         private String getFoldeName(String folderName)
         {
 
@@ -156,8 +153,21 @@ namespace CreateMap
                 (write as NumberWriteFile).setHVGrids(int.Parse(this.xGridText.Text), int.Parse(this.yGridText.Text));
             }
 
+            String outputType = "";
+
+            if (this.outJpgType.Checked)
+            {
+                outputType = ".jpg";
+            }
+            else if (this.outBmpType.Checked)
+            {
+                outputType = ".bmp";
+            }
+
             if (write != null)
             {
+                write.outputType = outputType;
+
                 write.draw(files, path, outputPath, this.tileText);
             }
         }
@@ -298,6 +308,11 @@ namespace CreateMap
         }
 
         private void textBox1_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label3_Click(object sender, EventArgs e)
         {
 
         }

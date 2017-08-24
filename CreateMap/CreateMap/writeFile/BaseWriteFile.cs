@@ -61,5 +61,7 @@ namespace CreateMap
 
             return name;
         }
+
+        public String outputType;
     }
 }

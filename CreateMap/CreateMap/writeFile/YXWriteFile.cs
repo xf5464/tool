@@ -206,7 +206,7 @@ namespace CreateMap.writeFile
 
             }
 
-            String outputPathString = outputPath + "\\" + foldName + ".jpg";
+            String outputPathString = outputPath + "\\" + foldName + this.outputType;
             bitmap.Save(outputPathString);
 
             bitmap.Dispose();
