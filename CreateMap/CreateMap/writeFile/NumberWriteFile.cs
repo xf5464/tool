@@ -59,9 +59,20 @@ namespace CreateMap.writeFile
 
             int horizotalCount = 0;
 
+            int tempWidth = 0;
+
+            int tempHeight = 0;
+
             foreach (FileInfo NextFile in files)
             {
-                Bitmap image1 = (Bitmap)Image.FromFile(NextFile.FullName, true);
+                if (tempWidth == 0)
+                {
+                    Bitmap image1 = (Bitmap)Image.FromFile(NextFile.FullName, true);
+
+                    tempWidth = image1.Width;
+
+                    tempHeight = image1.Height;
+                }
 
                 horizotalCount++;
 
@@ -79,11 +90,11 @@ namespace CreateMap.writeFile
                     horizotalCount = 1;
                 }
 
-                lastImageWidth = image1.Width;
+                lastImageWidth = tempWidth;
 
-                lastImageHeight = image1.Height;
+                lastImageHeight = tempHeight;
 
-                nowX += image1.Width;
+                nowX += tempWidth;
 
             }
 
@@ -182,10 +193,20 @@ namespace CreateMap.writeFile
 
             }
 
+
+            tileText.Text = "写入图片中";
+
+            tileText.Invalidate();
+            tileText.Update();
+            //tileText.refresh();
+            Application.DoEvents();
+
             String outputPathString = outputPath + "\\" + foldName + this.outputType;
             bitmap.Save(outputPathString);
 
             bitmap.Dispose();
+
+            tileText.Text = "写入图片完成";
         }
     }
 }

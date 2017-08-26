@@ -317,5 +317,57 @@ namespace CreateMap
 
         }
 
+        private void label5_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label6_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void textBox2_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label7_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void textBox3_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void calculateGridNumHandler(object sender, EventArgs e)
+        {
+            int smallMapWidth = int.Parse(this.smallMapWidthText.Text);
+
+            int smallMapHeight = int.Parse(this.smallMapHeightText.Text);
+
+            int blockWidth = int.Parse(this.blockWidthText.Text);
+
+            int blockHeight = int.Parse(this.blockHeightText.Text);
+
+            int totalNum = int.Parse(this.totalBlockNumText.Text);
+
+            int k1 = (int)Math.Ceiling(Math.Sqrt(smallMapWidth * blockHeight * totalNum / smallMapHeight / blockWidth));
+
+            int k2 = (int)Math.Floor(Math.Sqrt(smallMapWidth * blockHeight * totalNum / smallMapHeight / blockWidth));
+
+            if (totalNum % k1 == 0)
+            {
+                this.yGridText.Text = k1.ToString();
+                this.xGridText.Text = (totalNum / k1).ToString();
+            }
+            else if (totalNum % k2 == 0)
+            {
+                this.yGridText.Text = k2.ToString();
+                this.xGridText.Text = (totalNum / k2).ToString();
+            }
+        }
     }
 }

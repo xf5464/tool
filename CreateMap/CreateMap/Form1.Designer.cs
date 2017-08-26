@@ -55,8 +55,19 @@
             this.label3 = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
             this.panel3 = new System.Windows.Forms.Panel();
-            this.outJpgType = new System.Windows.Forms.RadioButton();
             this.outBmpType = new System.Windows.Forms.RadioButton();
+            this.outJpgType = new System.Windows.Forms.RadioButton();
+            this.smallMapWidthText = new System.Windows.Forms.TextBox();
+            this.label5 = new System.Windows.Forms.Label();
+            this.smallMapHeightText = new System.Windows.Forms.TextBox();
+            this.label6 = new System.Windows.Forms.Label();
+            this.blockWidthText = new System.Windows.Forms.TextBox();
+            this.label7 = new System.Windows.Forms.Label();
+            this.blockHeightText = new System.Windows.Forms.TextBox();
+            this.label8 = new System.Windows.Forms.Label();
+            this.totalBlockNumText = new System.Windows.Forms.TextBox();
+            this.label9 = new System.Windows.Forms.Label();
+            this.button1 = new System.Windows.Forms.Button();
             this.panel1.SuspendLayout();
             this.panel2.SuspendLayout();
             this.panel3.SuspendLayout();
@@ -64,7 +75,7 @@
             // 
             // sourceBtn
             // 
-            this.sourceBtn.Location = new System.Drawing.Point(63, 241);
+            this.sourceBtn.Location = new System.Drawing.Point(152, 340);
             this.sourceBtn.Name = "sourceBtn";
             this.sourceBtn.Size = new System.Drawing.Size(75, 23);
             this.sourceBtn.TabIndex = 0;
@@ -74,7 +85,7 @@
             // 
             // targetBtn
             // 
-            this.targetBtn.Location = new System.Drawing.Point(63, 270);
+            this.targetBtn.Location = new System.Drawing.Point(152, 369);
             this.targetBtn.Name = "targetBtn";
             this.targetBtn.Size = new System.Drawing.Size(75, 23);
             this.targetBtn.TabIndex = 1;
@@ -84,7 +95,7 @@
             // 
             // generateBtn
             // 
-            this.generateBtn.Location = new System.Drawing.Point(326, 314);
+            this.generateBtn.Location = new System.Drawing.Point(415, 413);
             this.generateBtn.Name = "generateBtn";
             this.generateBtn.Size = new System.Drawing.Size(97, 23);
             this.generateBtn.TabIndex = 4;
@@ -94,7 +105,7 @@
             // 
             // mutilButton
             // 
-            this.mutilButton.Location = new System.Drawing.Point(326, 432);
+            this.mutilButton.Location = new System.Drawing.Point(415, 531);
             this.mutilButton.Name = "mutilButton";
             this.mutilButton.Size = new System.Drawing.Size(97, 23);
             this.mutilButton.TabIndex = 9;
@@ -104,7 +115,7 @@
             // 
             // button2
             // 
-            this.button2.Location = new System.Drawing.Point(63, 390);
+            this.button2.Location = new System.Drawing.Point(152, 489);
             this.button2.Name = "button2";
             this.button2.Size = new System.Drawing.Size(75, 23);
             this.button2.TabIndex = 6;
@@ -114,7 +125,7 @@
             // 
             // button3
             // 
-            this.button3.Location = new System.Drawing.Point(63, 361);
+            this.button3.Location = new System.Drawing.Point(152, 460);
             this.button3.Name = "button3";
             this.button3.Size = new System.Drawing.Size(75, 23);
             this.button3.TabIndex = 5;
@@ -125,7 +136,7 @@
             // processText
             // 
             this.processText.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.processText.Location = new System.Drawing.Point(426, 432);
+            this.processText.Location = new System.Drawing.Point(515, 531);
             this.processText.Name = "processText";
             this.processText.Size = new System.Drawing.Size(192, 23);
             this.processText.TabIndex = 10;
@@ -133,7 +144,7 @@
             // tileText
             // 
             this.tileText.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.tileText.Location = new System.Drawing.Point(273, 205);
+            this.tileText.Location = new System.Drawing.Point(362, 304);
             this.tileText.Name = "tileText";
             this.tileText.Size = new System.Drawing.Size(192, 23);
             this.tileText.TabIndex = 11;
@@ -260,7 +271,7 @@
             // sourceText
             // 
             this.sourceText.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.sourceText.Location = new System.Drawing.Point(156, 243);
+            this.sourceText.Location = new System.Drawing.Point(245, 342);
             this.sourceText.Name = "sourceText";
             this.sourceText.Size = new System.Drawing.Size(551, 21);
             this.sourceText.TabIndex = 21;
@@ -268,7 +279,7 @@
             // outputPathText
             // 
             this.outputPathText.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.outputPathText.Location = new System.Drawing.Point(156, 270);
+            this.outputPathText.Location = new System.Drawing.Point(245, 369);
             this.outputPathText.Name = "outputPathText";
             this.outputPathText.Size = new System.Drawing.Size(551, 21);
             this.outputPathText.TabIndex = 22;
@@ -276,7 +287,7 @@
             // mapParentFolderText
             // 
             this.mapParentFolderText.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.mapParentFolderText.Location = new System.Drawing.Point(156, 363);
+            this.mapParentFolderText.Location = new System.Drawing.Point(245, 462);
             this.mapParentFolderText.Name = "mapParentFolderText";
             this.mapParentFolderText.Size = new System.Drawing.Size(551, 21);
             this.mapParentFolderText.TabIndex = 23;
@@ -284,7 +295,7 @@
             // parentFolderOutputText
             // 
             this.parentFolderOutputText.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.parentFolderOutputText.Location = new System.Drawing.Point(156, 392);
+            this.parentFolderOutputText.Location = new System.Drawing.Point(245, 491);
             this.parentFolderOutputText.Name = "parentFolderOutputText";
             this.parentFolderOutputText.Size = new System.Drawing.Size(551, 21);
             this.parentFolderOutputText.TabIndex = 24;
@@ -317,17 +328,6 @@
             this.panel3.Size = new System.Drawing.Size(101, 100);
             this.panel3.TabIndex = 27;
             // 
-            // outJpgType
-            // 
-            this.outJpgType.AutoSize = true;
-            this.outJpgType.Location = new System.Drawing.Point(16, 16);
-            this.outJpgType.Name = "outJpgType";
-            this.outJpgType.Size = new System.Drawing.Size(47, 16);
-            this.outJpgType.TabIndex = 15;
-            this.outJpgType.TabStop = true;
-            this.outJpgType.Text = ".jpg";
-            this.outJpgType.UseVisualStyleBackColor = true;
-            // 
             // outBmpType
             // 
             this.outBmpType.AutoSize = true;
@@ -339,11 +339,128 @@
             this.outBmpType.Text = ".bmp";
             this.outBmpType.UseVisualStyleBackColor = true;
             // 
+            // outJpgType
+            // 
+            this.outJpgType.AutoSize = true;
+            this.outJpgType.Location = new System.Drawing.Point(16, 16);
+            this.outJpgType.Name = "outJpgType";
+            this.outJpgType.Size = new System.Drawing.Size(47, 16);
+            this.outJpgType.TabIndex = 15;
+            this.outJpgType.TabStop = true;
+            this.outJpgType.Text = ".jpg";
+            this.outJpgType.UseVisualStyleBackColor = true;
+            // 
+            // smallMapWidthText
+            // 
+            this.smallMapWidthText.Location = new System.Drawing.Point(248, 206);
+            this.smallMapWidthText.Name = "smallMapWidthText";
+            this.smallMapWidthText.Size = new System.Drawing.Size(61, 21);
+            this.smallMapWidthText.TabIndex = 29;
+            // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(189, 209);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(53, 12);
+            this.label5.TabIndex = 28;
+            this.label5.Text = "小地图宽";
+            this.label5.Click += new System.EventHandler(this.label5_Click);
+            // 
+            // smallMapHeightText
+            // 
+            this.smallMapHeightText.Location = new System.Drawing.Point(248, 229);
+            this.smallMapHeightText.Name = "smallMapHeightText";
+            this.smallMapHeightText.Size = new System.Drawing.Size(61, 21);
+            this.smallMapHeightText.TabIndex = 31;
+            this.smallMapHeightText.TextChanged += new System.EventHandler(this.textBox2_TextChanged);
+            // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.Location = new System.Drawing.Point(189, 232);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(53, 12);
+            this.label6.TabIndex = 30;
+            this.label6.Text = "小地图高";
+            this.label6.Click += new System.EventHandler(this.label6_Click);
+            // 
+            // blockWidthText
+            // 
+            this.blockWidthText.Location = new System.Drawing.Point(383, 206);
+            this.blockWidthText.Name = "blockWidthText";
+            this.blockWidthText.Size = new System.Drawing.Size(61, 21);
+            this.blockWidthText.TabIndex = 33;
+            this.blockWidthText.TextChanged += new System.EventHandler(this.textBox3_TextChanged);
+            // 
+            // label7
+            // 
+            this.label7.AutoSize = true;
+            this.label7.Location = new System.Drawing.Point(324, 209);
+            this.label7.Name = "label7";
+            this.label7.Size = new System.Drawing.Size(53, 12);
+            this.label7.TabIndex = 32;
+            this.label7.Text = "地图块宽";
+            this.label7.Click += new System.EventHandler(this.label7_Click);
+            // 
+            // blockHeightText
+            // 
+            this.blockHeightText.Location = new System.Drawing.Point(383, 232);
+            this.blockHeightText.Name = "blockHeightText";
+            this.blockHeightText.Size = new System.Drawing.Size(61, 21);
+            this.blockHeightText.TabIndex = 35;
+            // 
+            // label8
+            // 
+            this.label8.AutoSize = true;
+            this.label8.Location = new System.Drawing.Point(324, 235);
+            this.label8.Name = "label8";
+            this.label8.Size = new System.Drawing.Size(53, 12);
+            this.label8.TabIndex = 34;
+            this.label8.Text = "地图块高";
+            // 
+            // totalBlockNumText
+            // 
+            this.totalBlockNumText.Location = new System.Drawing.Point(527, 206);
+            this.totalBlockNumText.Name = "totalBlockNumText";
+            this.totalBlockNumText.Size = new System.Drawing.Size(61, 21);
+            this.totalBlockNumText.TabIndex = 37;
+            // 
+            // label9
+            // 
+            this.label9.AutoSize = true;
+            this.label9.Location = new System.Drawing.Point(459, 209);
+            this.label9.Name = "label9";
+            this.label9.Size = new System.Drawing.Size(65, 12);
+            this.label9.TabIndex = 36;
+            this.label9.Text = "地图总张数";
+            // 
+            // button1
+            // 
+            this.button1.Location = new System.Drawing.Point(461, 233);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(75, 23);
+            this.button1.TabIndex = 38;
+            this.button1.Text = "计算";
+            this.button1.UseVisualStyleBackColor = true;
+            this.button1.Click += new System.EventHandler(this.calculateGridNumHandler);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(763, 505);
+            this.ClientSize = new System.Drawing.Size(948, 626);
+            this.Controls.Add(this.button1);
+            this.Controls.Add(this.totalBlockNumText);
+            this.Controls.Add(this.label9);
+            this.Controls.Add(this.blockHeightText);
+            this.Controls.Add(this.label8);
+            this.Controls.Add(this.blockWidthText);
+            this.Controls.Add(this.label7);
+            this.Controls.Add(this.smallMapHeightText);
+            this.Controls.Add(this.label6);
+            this.Controls.Add(this.smallMapWidthText);
+            this.Controls.Add(this.label5);
             this.Controls.Add(this.panel3);
             this.Controls.Add(this.label4);
             this.Controls.Add(this.label3);
@@ -410,6 +527,17 @@
         private System.Windows.Forms.Panel panel3;
         private System.Windows.Forms.RadioButton outBmpType;
         private System.Windows.Forms.RadioButton outJpgType;
+        private System.Windows.Forms.TextBox smallMapWidthText;
+        private System.Windows.Forms.Label label5;
+        private System.Windows.Forms.TextBox smallMapHeightText;
+        private System.Windows.Forms.Label label6;
+        private System.Windows.Forms.TextBox blockWidthText;
+        private System.Windows.Forms.Label label7;
+        private System.Windows.Forms.TextBox blockHeightText;
+        private System.Windows.Forms.Label label8;
+        private System.Windows.Forms.TextBox totalBlockNumText;
+        private System.Windows.Forms.Label label9;
+        private System.Windows.Forms.Button button1;
     }
 }
 
