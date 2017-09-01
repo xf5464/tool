@@ -152,6 +152,8 @@ namespace CreateMap.writeFile
         {
             Graphics formGraphics = Graphics.FromImage(bitmap);
 
+            formGraphics.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.NearestNeighbor;
+
             int lastHIndex = 0;
 
             int lastVIndex = 0;

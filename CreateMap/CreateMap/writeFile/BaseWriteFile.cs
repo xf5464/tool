@@ -19,12 +19,15 @@ namespace CreateMap
 
         public BaseWriteFile()
         {
-            splits = new char[1];
 
-            splits[0] = '_';
         }
 
-        private char[] splits;
+        private String[] splits;
+
+        protected String[] Splits
+        {
+            get { return splits; }
+        }
 
         protected int mapTileTotal = 0;
 
@@ -34,17 +37,38 @@ namespace CreateMap
         {
         }
 
-        protected Regex rgx = new Regex(@"\d+_\d+");
+        protected Regex rgx = null;
 
         protected String[] getHVIndex(FileInfo file)
         {
-            MatchCollection matches = rgx.Matches(file.FullName);
+
+            if (rgx == null)
+            {
+                rgx = new Regex(@"\d+" + this.gapName + @"\d+");
+            }
+
+            if (Splits == null)
+            {
+                splits = new String[] { this.gapName };
+            }
+
+            String inputName = file.FullName;
+
+            if (this.preName != "")
+            {
+                Regex temp = new Regex(this.preName);
+
+                inputName = file.FullName.Replace(this.preName, "");
+            }
+
+
+            MatchCollection matches = rgx.Matches(inputName);
 
             if (matches.Count > 0)
             {
                 Match match = matches[0];
 
-                String[] data = match.Value.Split(splits);
+                String[] data = match.Value.Split(Splits, StringSplitOptions.RemoveEmptyEntries);
 
                 return data;
             }
@@ -63,5 +87,9 @@ namespace CreateMap
         }
 
         public String outputType;
+
+        public String preName;
+
+        public String gapName;
     }
 }

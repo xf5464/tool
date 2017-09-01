@@ -11,6 +11,7 @@ using System.Windows.Forms;
 using System.Text.RegularExpressions;
 using System.Threading;
 using CreateMap.writeFile;
+using CreateMap.split;
 
 namespace CreateMap
 {
@@ -32,6 +33,8 @@ namespace CreateMap
             this.imageType1.Select();
 
             this.outJpgType.Select();
+
+            this.gapText.Text = "_";
         }
 
 
@@ -111,6 +114,8 @@ namespace CreateMap
 
             FileInfo[] ret = TheFolder.GetFiles();
 
+            String gapText = this.gapText.Text;
+
             foreach (FileInfo temp in ret)
             {
                 if (temp.FullName.ToLower().IndexOf(this.imageType) == -1)
@@ -120,7 +125,7 @@ namespace CreateMap
 
                 if (this.alignType == XY_ALIGN_TYPE || this.alignType == YX_ALIGN_TYPE)
                 {
-                    if (temp.FullName.IndexOf("_") == -1)
+                    if (temp.FullName.IndexOf(gapText) == -1)
                     {
                         continue;
                     }
@@ -166,6 +171,11 @@ namespace CreateMap
 
             if (write != null)
             {
+
+                write.preName = this.preName.Text;
+
+                write.gapName = this.gapText.Text;
+
                 write.outputType = outputType;
 
                 write.draw(files, path, outputPath, this.tileText);
@@ -217,9 +227,9 @@ namespace CreateMap
 
         private const String BMP_TYPE = ".bmp";
 
-        private String imageType;
+        private String imageType = JPG_TYPE;
 
-        private int alignType;
+        private int alignType = XY_ALIGN_TYPE;
 
         private int splitX;
 
@@ -368,6 +378,112 @@ namespace CreateMap
                 this.yGridText.Text = k2.ToString();
                 this.xGridText.Text = (totalNum / k2).ToString();
             }
+        }
+
+        private void textBox1_TextChanged_1(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label13_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label15_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label14_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void textBox4_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void textBox3_TextChanged_1(object sender, EventArgs e)
+        {
+
+        }
+
+        private void selectSplitMapHandler(object sender, EventArgs e)
+        {
+
+            OpenFileDialog dialog = new OpenFileDialog();
+            dialog.Multiselect = false;
+            dialog.Title = "请选择地图文件";
+            dialog.Filter = "*.jpg|*.jpg";
+            if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            {
+                splitMapSourceText.Text = dialog.FileName;
+            }
+
+        }
+
+        private void selectSplitOutputHandler(object sender, EventArgs e)
+        {
+            FolderBrowserDialog dialog = new FolderBrowserDialog();
+            dialog.Description = "请选择输出文件夹路径";
+            if (dialog.ShowDialog() == DialogResult.OK)
+            {
+                this.splitOutDirectoryText.Text = dialog.SelectedPath;
+            }
+        }
+
+        private void startSplitMapHandler(object sender, EventArgs e)
+        {
+
+            if (this.splitMapSourceText.Text == "")
+            {
+                MessageBox.Show("请选择目标图片");
+                return;
+            }
+
+            if (this.splitOutDirectoryText.Text == "")
+            {
+                MessageBox.Show("请选择输出目录");
+                return;
+            }
+
+
+            int spilitBlockWidth = int.Parse(this.splitBlockWidthText.Text);
+
+            int spilitBlockHeight = int.Parse(this.splitBlockHeightText.Text);
+
+            BaseSplitMap splitMap = null;
+
+            if (this.splitXyOption.Checked)
+            {
+                splitMap = new XYSplitMap();
+
+                (splitMap as XYSplitMap).setExtraData(this.splitGapText.Text, int.Parse(this.splitStartXyNumText.Text));
+            }
+            else if (this.splitYxOption.Checked)
+            {
+                splitMap = new YXSplitMap();
+
+                (splitMap as YXSplitMap).setExtraData(this.splitGapText.Text, int.Parse(this.splitStartXyNumText.Text));
+            }
+            else if (this.splitNumberOption.Checked)
+            {
+                splitMap = new NumberSplitMap();
+
+                (splitMap as NumberSplitMap).setExtraData(int.Parse(this.splitNumText.Text), int.Parse(this.splitStartValueText.Text));
+            }
+
+            if (splitMap != null)
+            {
+                splitMap.split(this.splitMapSourceText.Text, this.splitOutDirectoryText.Text, 
+                              int.Parse(this.splitBlockWidthText.Text), int.Parse(this.splitBlockHeightText.Text),
+                              this.splitPreNameText.Text, this.tileText);
+
+                MessageBox.Show("完成");
+            }
+
         }
     }
 }
