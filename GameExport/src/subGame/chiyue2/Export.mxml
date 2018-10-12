@@ -1,0 +1,698 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009"
+					   xmlns:s="library://ns.adobe.com/flex/spark"
+					   xmlns:mx="library://ns.adobe.com/flex/mx"
+					   width="900" height="500"
+					   addedToStage="onCreateComplete()">
+	
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	
+	<fx:Script>
+		<![CDATA[
+			import flash.utils.getTimer;
+			
+			import subGame.chiyue2.games.display.Avatar.VtyAvatarActionInfo;
+			import subGame.chiyue2.games.display.Avatar.VtyAvatarDataInfo;
+			import subGame.chiyue2.games.display.Avatar.VtyAvatarFrameInfo;
+			
+			import mx.controls.Alert;
+			
+			import subGame.LoadOneFile;
+			import subGame.fengtian.zip.FZipLoader;
+			import subGame.fengtian.zip.ZipReader;
+			
+			import subGame.chiyue2.utils.MethodTool;
+			
+			private var selectedSaveFile:File;
+			
+			private var shareObject:SharedObject;
+			
+			private const SHARE_OBJECT_NAME:String = "chiyue2";
+			
+			private function get sourcePathKey():String
+			{
+				return SHARE_OBJECT_NAME + "SourcePath";
+			}
+			
+			private function get outputPathKey():String
+			{
+				return SHARE_OBJECT_NAME + "OutputPath";
+			}
+			
+			private function get configDataKey():String
+			{
+				return SHARE_OBJECT_NAME + "ConfigDataPath";
+			}
+			
+			private function get caijiWebSourcePathKey():String
+			{
+				return SHARE_OBJECT_NAME + "WebRootText"
+			}
+			
+			private function get caijiOutputPathKey():String
+			{
+				return SHARE_OBJECT_NAME + "WebOutputText";
+			}
+			
+			private function get versionFileKey():String
+			{
+				return SHARE_OBJECT_NAME + "versionFileKey";
+			}
+			
+			private function get gameBaseKey():String
+			{
+				return SHARE_OBJECT_NAME + "gameBaseKey";
+			}
+			
+			private var firstWebRootText:String = "http://cdn.cycs2.9377.com/cy2Assets/";
+			
+			private var firstGameBaseUrl:String = "http://cdn.cycs2.9377.com/cy2Assets/game/9996/base/gameBase?r=5451?20170728175842null";
+			
+			private function onCreateComplete():void
+			{
+				this.addEventListener(Event.ENTER_FRAME, onVersionEnterFrame);
+				
+				_ResMgr.instance.setStage(this.stage);
+				
+				MethodTool.init(this.stage);	
+				
+				registerClassAlias("VtyAvatarDataInfo",VtyAvatarDataInfo);
+				registerClassAlias("VtyAvatarActionInfo",VtyAvatarActionInfo);
+				registerClassAlias("VtyAvatarFrameInfo",VtyAvatarFrameInfo);
+				registerClassAlias("Rectangle",Rectangle);
+				registerClassAlias("Point",Point);
+				
+				this.versionFileText.text = this.firstVersionUrl;
+				
+				this.webRootText.text = firstWebRootText;
+				
+				this.gameBaseText.text = firstGameBaseUrl;
+				
+				this.gameBaseText2.text = firstGameBaseUrl;
+				
+				shareObject = SharedObject.getLocal(SHARE_OBJECT_NAME);
+				
+				if (shareObject.data.hasOwnProperty(sourcePathKey))
+				{
+					this.sourceUrl = shareObject.data[sourcePathKey];
+					
+					selectedSaveFile = new File(this.sourceUrl);
+					
+					this.sourcePath.text = selectedSaveFile.nativePath;
+				}
+				
+				if (shareObject.data.hasOwnProperty(outputPathKey))
+				{
+					this.outputPath = shareObject.data[outputPathKey];
+					
+					selectedOutFolder = new File(this.outputPath)
+						
+					this.outputPathText.text = selectedOutFolder.nativePath;
+				}
+				
+				if (shareObject.data.hasOwnProperty(caijiWebSourcePathKey))
+				{
+					this.webRootText.text = shareObject.data[caijiWebSourcePathKey];
+					
+					webRootPath = this.webRootText.text;
+				}
+				
+				if (shareObject.data.hasOwnProperty(caijiOutputPathKey))
+				{
+					webOutputFile = new File(shareObject.data[caijiOutputPathKey]);
+					
+					this.verSourceSaveText.text = webOutputFile.nativePath;
+				}
+				
+				if (shareObject.data.hasOwnProperty(versionFileKey))
+				{
+					this.versionFileText.text = shareObject.data[versionFileKey];
+				}
+				
+				if (shareObject.data.hasOwnProperty(this.gameBaseKey))
+				{
+					this.gameBaseText.text = shareObject.data[gameBaseKey];
+					
+					this.gameBaseText2.text = shareObject.data[gameBaseKey];
+				}
+			}
+			
+			private var webRootPath:String;
+			
+			private var webOutputFile:File;
+			
+			protected function chooseSource(event:MouseEvent):void
+			{
+				selectedSaveFile = new File();
+				selectedSaveFile.addEventListener(Event.SELECT, onSelectedSourceFolder);
+				selectedSaveFile.browseForDirectory("请选择资源目录");
+			}
+			
+			private function onSelectedSourceFolder(e:Event):void
+			{
+				this.sourcePath.text = selectedSaveFile.nativePath;
+				
+				sourceUrl = selectedSaveFile.url;
+			}
+			
+			private var sourceUrl:String;
+			
+			
+			private var selectedOutFolder:File;
+			
+			protected function chooseOutput(event:MouseEvent):void
+			{
+				selectedOutFolder = new File();
+				selectedOutFolder.addEventListener(Event.SELECT, onSelectedOutputFolder);
+				selectedOutFolder.browseForDirectory("请选择输出目录");
+			}
+			
+			protected function onSelectedOutputFolder(event:Event):void
+			{
+				this.outputPathText.text = selectedOutFolder.nativePath;
+				
+				outputPath = selectedOutFolder.url;
+			}
+			
+			private var outputPath:String;
+			
+			private var startRunTime:int;
+			
+			private function start():void
+			{
+				if (this.selectedSaveFile == null || this.selectedOutFolder == null)
+				{
+					Alert.show("请选择输入输出");
+					
+					return;
+				}
+				
+				isCollection = false;
+				
+				shareObject.data[this.sourcePathKey] = this.selectedSaveFile.url;
+				
+				shareObject.data[this.outputPathKey] = this.selectedOutFolder.url;
+				
+				shareObject.flush();
+					
+				startRunTime = flash.utils.getTimer();
+				
+				finishedFileCount = 0;
+				
+				this.waitFiles.length = 0;
+				
+				this.findNeedFiles(this.selectedSaveFile);
+				
+				this.totalFileCount = this.waitFiles.length;
+				
+				this.checkNextFile();
+			}
+			
+			private var avardObjct:Object;
+			
+			private final function restorDone() : void
+			{
+				
+			}
+			
+			private var configFile:File;
+			
+			private var configLoader:URLStream;
+	
+			private var totalFileCount:int;
+			
+			private var finishedFileCount:int;
+			
+			private var waitFiles:Array = [];
+			
+			
+			private function findNeedFiles(parentFile:File):void
+			{
+				if (parentFile.isDirectory)
+				{
+					var tempSubfiles:Array = parentFile.getDirectoryListing();
+					
+					for each (var file:File in tempSubfiles)
+					{
+						findNeedFiles(file);
+					}
+				}
+				else
+				{
+					if (parentFile.type == ".res" && parentFile.url.indexOf("NResource") != -1)
+					{
+						waitFiles.push(parentFile);
+					}
+				}
+			}
+			
+			private function checkNextFile():void
+			{
+				if (waitFiles.length > 0)
+				{
+					firstFile = waitFiles.shift();
+					
+					urlLoader = new URLLoader();
+					urlLoader.dataFormat = URLLoaderDataFormat.BINARY;
+					urlLoader.addEventListener(Event.COMPLETE, urlLoadComplete);
+					
+					urlLoader.load(new URLRequest(firstFile.url));
+					
+					return;
+					
+				}
+				
+			}
+			
+			private var firstFile:File;
+			
+			private function urlLoadComplete(e:Event):void
+			{
+				urlLoader.removeEventListener(Event.COMPLETE, urlLoadComplete);
+
+				var ba:ByteArray = e.target.data;
+				
+				ba.position = 0;
+				
+//				trace("start:" + firstFile.url);
+				
+				var relativePath:String = firstFile.url.replace(selectedSaveFile.url, "");
+				
+				relativePath = relativePath.substring(0, relativePath.indexOf("."));
+				
+				var folderName:String = outputPath + "/output/" + relativePath + "/";
+				
+				var chiyueUrl:Array = relativePath.replace("/resources/NResource/", "").split("/");
+				
+				if (chiyueUrl[2].indexOf("_") != -1)
+				{
+					var k:Array = chiyueUrl[2].split("_");
+					
+					chiyueUrl[2] = k[0];
+					chiyueUrl[3] = k[1];
+				}
+				
+				var ana:Analyze = new Analyze(folderName, loadCallback);
+				ana.chiyueUrl = chiyueUrl.join("_");
+				
+				ana.fileName = firstFile.name;
+				ana.inputFileUrl = firstFile.url;
+				
+				save[ana] = true;
+				
+//				trace("process " + firstFile.nativePath);
+				
+				try
+				{
+					ana.ana(ba, folderName);
+				}
+				catch(e:Error)
+				{
+					trace(firstFile.nativePath + " error:" + e.toString())
+					
+					loadCallback(ana);
+				}
+			}
+			
+			private function loadCallback(ana:Analyze):void
+			{
+				finishedFileCount++;
+				
+				save[ana] = null;
+				
+				delete save[ana];
+				
+				processText.text = finishedFileCount + "/" + totalFileCount;
+				
+				if (finishedFileCount == totalFileCount)
+				{
+					isWorking = false;
+					
+					var endTime:int = flash.utils.getTimer();
+					
+					var seconds:int = (endTime - startRunTime)/1000;
+					
+					var minutes:int = seconds/60;
+					
+					var s:int = seconds - minutes*60;
+					
+					if (minutes > 0)
+					{
+						Alert.show("完成耗时" + minutes + "分钟" + s + "秒");
+					}
+					else
+					{
+						Alert.show("完成耗时" + s + "秒");
+					}
+					
+					return;
+				}
+				
+				checkNextFile();
+			}
+			
+			private var save:Dictionary = new Dictionary();
+			
+			private var urlLoader:URLLoader;
+			
+			private var isWorking:Boolean = false;
+			
+			protected function selectVersionFileOutput(event:MouseEvent):void
+			{
+				this.webOutputFile = new File();
+				this.webOutputFile.addEventListener(Event.SELECT, onVersionOutputSelect);
+				
+				this.webOutputFile.browseForDirectory("选择采集输出目录");
+			}
+			
+			protected function onVersionOutputSelect(event:Event):void
+			{
+				this.verSourceSaveText.text = this.webOutputFile.nativePath;
+			}
+			
+			private function startCollection():void
+			{
+				if (this.webOutputFile == null)
+				{
+					Alert.show("输出目录为空");
+					
+					return;
+				}
+				
+				isCollection = true;
+				
+				shareObject.data[caijiWebSourcePathKey] = this.webRootText.text;
+				
+				shareObject.data[caijiOutputPathKey] = this.webOutputFile.url;
+				
+				shareObject.data[this.versionFileKey] = this.versionFileText.text;
+				
+				shareObject.data[this.gameBaseKey] = this.gameBaseText.text;
+				
+				shareObject.flush();
+				
+				this.setCollectionTip("开始加载版本文件");
+				
+				versionUrlLoader = new URLLoader();
+				versionUrlLoader.addEventListener(Event.COMPLETE, onVersionLoadComplete);
+				versionUrlLoader.addEventListener(IOErrorEvent.IO_ERROR, onVersionLoadFail);
+				versionUrlLoader.dataFormat = URLLoaderDataFormat.BINARY;
+				versionUrlLoader.load(new URLRequest(this.versionFileText.text));
+			}
+			
+			protected function onVersionLoadFail(event:IOErrorEvent):void
+			{
+				this.setCollectionTip("加载版本文件失败");
+			}
+			
+			protected function onVersionLoadComplete(event:Event):void
+			{
+				// TODO Auto-generated method stub
+				var obj:ByteArray = event.target.data;
+				
+				obj.uncompress();
+				
+				var _loc3_:Object = obj.readObject();
+				
+				var count:int = 0;
+				
+				collectionFileUrls.length = 0;
+			
+				for (var key:String in _loc3_)
+				{
+					if (key.indexOf(".") == -1)
+					{
+						continue;
+					}
+					
+					if (key.indexOf(".res") == -1)
+					{
+						continue;
+					} 
+					
+					trace(key + ":" + _loc3_[key]);
+					
+					count++;
+					
+					collectionFileUrls.push([ key,_loc3_[key]]);
+				}
+				
+				trace("count:" + count);
+				
+				loadGameBase();
+			}
+			
+			private var gameBaseLoader:URLLoader;
+			
+			private function loadGameBase():void
+			{
+				this.setCollectionTip("开始加载gameBase");
+				
+				gameBaseLoader = new URLLoader();
+				gameBaseLoader.addEventListener(Event.COMPLETE, onGameBaseLoadComplete);
+				gameBaseLoader.addEventListener(IOErrorEvent.IO_ERROR, onGameBaseFail);
+				gameBaseLoader.dataFormat = URLLoaderDataFormat.BINARY;
+				gameBaseLoader.load(new URLRequest(this.gameBaseText.text));
+			}
+			
+			protected function onGameBaseLoadComplete(event:Event):void
+			{
+				this.setCollectionTip("加载gameBase完成");
+				
+				var obj:ByteArray = event.target.data;
+				
+				var _loc1_:FioZip = new FioZip(openDone,saveConfig);
+				_loc1_.uncompress(obj);
+			}
+			
+			private function openDone():void
+			{
+				// TODO Auto Generated method stub
+				
+			}
+			
+			public function saveConfig(param1:String, param2:*) : void
+			{
+				if("resConfig_u" == param1)
+				{
+					trace("resConfigByets:");
+					var resConfigByets:ByteArray = param2;
+					resConfigByets.uncompress();
+					
+					var k:Array = resConfigByets.readObject() as Array;
+					
+					_ResMgr.instance.setConfig(k);
+					
+					if (this.isCollection)
+					{
+						this.onLoadVersionFileComlete();
+					}
+					else
+					{
+						this.start();
+					}
+				}
+			}
+			
+			protected function onGameBaseFail(event:IOErrorEvent):void
+			{
+				this.setCollectionTip("加载gameBase失败");
+			}
+			
+			private var collectionFileUrls:Array = [];
+			
+			private var versionUrlLoader:URLLoader;
+			
+			
+			protected function onLoadVersionFileComlete():void
+			{
+				this.setCollectionTip("加载版本文件完成");
+				
+//				var errorUrl:String = "http://resbsyjstm.utogame.com/res_jstm/v1.0.0.100//uiimg/res/img/comimg/cell/生存者战袍.png?ver=e779bdec05bc91ccda5d7540d7ac296f";
+				
+/* 				var file:File = new File("e:/tangmeng/version.txt");
+				var fs:FileStream = new FileStream();
+				fs.open(file, FileMode.WRITE);
+				fs.writeUTFBytes(versionString);
+				fs.close();
+				
+				return; */
+//				collectionFileUrls.push(errorUrl);
+				
+				totalCollectionFileCount = collectionFileUrls.length;
+				
+				finishedCollectionFileCount = 0;
+				
+				checkLoadCollectionFile();
+			}
+			
+			private function checkLoadCollectionFile():void
+			{
+				if (this.collectionFileUrls.length > 0)
+				{
+					var k:String = this.collectionFileUrls.shift();
+					
+					var t:Array = k.split(",");
+					
+					var $relativeUrl:String = t[0];
+					
+					var $sourcePrePath:String = this.webRootText.text;
+					
+					var $outputPath:String = this.webOutputFile.url + "/";
+					
+					loadOneFile.load($sourcePrePath + $relativeUrl + "?ver=" + t[1], $relativeUrl, $outputPath, onOneVersionLoadComplete);
+					
+				}
+				else
+				{
+					this.removeEventListener(Event.ENTER_FRAME, onVersionEnterFrame);
+					
+					Alert.show("下载完成");
+				}
+			}
+			
+			private function onOneVersionLoadComplete():void
+			{
+				finishedCollectionFileCount++;
+				
+				checkLoadCollectionFile();
+			}
+			
+			private function onVersionEnterFrame(e:Event):void
+			{
+				this.setCollectionTip("完成" + finishedCollectionFileCount + "/" + totalCollectionFileCount);
+				
+				if (firstFile != null && currentText.text != firstFile.nativePath)
+				{
+					currentText.text = firstFile.nativePath;
+				}
+			}
+			
+			private var loadOneFile:LoadOneFile = new LoadOneFile();
+			
+			private var versioFileLoader:URLLoader;
+			
+			private var finishedCollectionFileCount:int;
+			
+			private var totalCollectionFileCount:int;
+			
+			private function setCollectionTip(value:String):void
+			{
+				if (value == null)
+				{
+					return;
+				}
+				
+				this.collectionTip.text = value;
+			}
+			
+			public static const ACTION_IDLE:String = "idle";
+			
+			public static const ACTION_WALK:String = "walk";
+			
+			public static const ACTION_RUN:String = "run";
+			
+			public static const ACTION_FLASH:String = "flash";
+			
+			public static const ACTION_ATTACK_IDLE:String = "attackidle";
+			
+			public static const ACTION_ATTACK:String = "attack";
+			
+			public static const ACTION_MAGIC:String = "magic";
+			
+			public static const ACTION_DEAD:String = "dead";
+			
+			public static const ACTION_DASH:String = "dash";
+			
+			public static const ActionArr:Array = [ACTION_IDLE,ACTION_WALK,ACTION_RUN,ACTION_FLASH,ACTION_ATTACK_IDLE,ACTION_ATTACK,ACTION_MAGIC,ACTION_DEAD,ACTION_DASH];
+			
+			private var firstVersionUrl:String = "http://cdn.cycs2.9377.com/cy2Assets/revision20170410?20170728163720null";
+			
+			private var isCollection:Boolean = false;
+			
+		]]>
+	</fx:Script>
+	
+	
+	
+	<mx:VBox x="0" y="71">
+		
+		<mx:Text text="赤月2" fontSize="16" fontFamily="微软雅黑"/>
+		
+		<mx:HBox >
+			<s:Button label="选择输入目录" click="chooseSource(event)"/>
+			
+			<mx:Text id="sourcePath" width="500"/>
+		</mx:HBox>
+		
+		<mx:HBox>
+			<s:Button label="选择输出目录" click="chooseOutput(event)"/>
+			
+			<mx:Text id="outputPathText" width="500"/>
+		</mx:HBox>
+		
+		<mx:HBox>
+			<s:Label text="gameBaseUrl"/>
+			
+			<mx:TextInput id="gameBaseText2"  width="590"/>
+		</mx:HBox>
+		
+		<mx:HBox >
+			<s:Button label="进度" click="chooseSource(event)"/>
+			
+			<mx:Text id="processText" width="500"/>
+		</mx:HBox>
+		
+		<mx:HBox>
+			
+			<s:Label text="当前处理文件" fontSize="14"/>
+			
+			<mx:Text id="currentText" width="500"/>
+		</mx:HBox>
+		
+		<mx:HBox>
+			<s:Button label="开始" click="loadGameBase()"/>
+		</mx:HBox>
+		
+	</mx:VBox>
+	
+	<mx:VBox y="300">
+		
+		<mx:HBox>
+			<s:Label text="版本文件url"/>
+			
+			<mx:TextInput id="versionFileText"  width="604"/>
+		</mx:HBox>
+		
+		<mx:HBox>
+			<s:Label text="gameBaseUrl"/>
+			
+			<mx:TextInput id="gameBaseText"  width="590"/>
+		</mx:HBox>
+		
+		
+		<mx:HBox>
+			<s:Label text="选择采集网站根目录"/>
+				
+			<mx:TextInput id="webRootText"  width="564"/>
+		</mx:HBox>
+		
+		<mx:HBox>
+			<s:Button label="选择资源输出目录" click="selectVersionFileOutput(event)"/>
+			
+			<mx:Text id="verSourceSaveText"  width="479"/>
+		</mx:HBox>
+		
+		<mx:HBox>
+			<s:Button label="开始采集" click="startCollection()"/>
+			
+			<mx:Text id="collectionTip"  width="479"/>
+		</mx:HBox>
+	
+		
+	</mx:VBox>
+	
+	
+</s:Group>

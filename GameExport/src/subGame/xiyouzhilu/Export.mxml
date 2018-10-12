@@ -1,0 +1,774 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009"
+					   xmlns:s="library://ns.adobe.com/flex/spark"
+					   xmlns:mx="library://ns.adobe.com/flex/mx"
+					   width="900" height="500"
+					   addedToStage="onCreateComplete()">
+	
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	
+	<fx:Script>
+		<![CDATA[
+			import mx.controls.Alert;
+			
+			import subGame.BaseAnalyze;
+			import subGame.BaseAnalyzeVo;
+			import subGame.LoadOneFile;
+			
+			private var selectedSaveFile:File;
+			
+			private var shareObject:SharedObject;
+			
+			private const SHARE_OBJECT_NAME:String = "xiyouzhilu";
+			
+			private function get sourcePathKey():String
+			{
+				return SHARE_OBJECT_NAME + "SourcePath";
+			}
+			
+			private function get outputPathKey():String
+			{
+				return SHARE_OBJECT_NAME + "OutputPath";
+			}
+			
+			private function get configDataKey():String
+			{
+				return SHARE_OBJECT_NAME + "ConfigDataPath";
+			}
+			
+			private function get caijiWebSourcePathKey():String
+			{
+				return SHARE_OBJECT_NAME + "WebRootText"
+			}
+			
+			private function get caijiOutputPathKey():String
+			{
+				return SHARE_OBJECT_NAME + "WebOutputText";
+			}
+			
+			private function get versionFileKey():String
+			{
+				return SHARE_OBJECT_NAME + "versionFileKey";
+			}
+			
+			private function onCreateComplete():void
+			{
+				shareObject = SharedObject.getLocal(SHARE_OBJECT_NAME);
+				
+				if (shareObject.data.hasOwnProperty(sourcePathKey))
+				{
+					this.sourceUrl = shareObject.data[sourcePathKey];
+					
+					selectedSaveFile = new File(this.sourceUrl);
+					
+					this.sourcePath.text = selectedSaveFile.nativePath;
+				}
+				
+				if (shareObject.data.hasOwnProperty(outputPathKey))
+				{
+					this.outputPath = shareObject.data[outputPathKey];
+					
+					selectedOutFolder = new File(this.outputPath)
+						
+					this.outputPathText.text = selectedOutFolder.nativePath;
+				}
+				
+				if (shareObject.data.hasOwnProperty(caijiWebSourcePathKey))
+				{
+					this.webRootText.text = shareObject.data[caijiWebSourcePathKey];
+					
+					webRootPath = this.webRootText.text;
+				}
+				
+				if (shareObject.data.hasOwnProperty(caijiOutputPathKey))
+				{
+					webOutputFile = new File(shareObject.data[caijiOutputPathKey]);
+					
+					this.verSourceSaveText.text = webOutputFile.nativePath;
+				}
+				
+				if (shareObject.data.hasOwnProperty(versionFileKey))
+				{
+					versionFile = new File(shareObject.data[versionFileKey]);
+					
+					this.versionFileText.text = versionFile.nativePath;
+				}
+			}
+			
+			private var versionFile:File;
+			
+			private var webRootPath:String;
+			
+			private var webOutputFile:File;
+			
+			protected function chooseSource(event:MouseEvent):void
+			{
+				selectedSaveFile = new File();
+				selectedSaveFile.addEventListener(Event.SELECT, onSelectedSourceFolder);
+				selectedSaveFile.browseForDirectory("请选择资源目录");
+			}
+			
+			private function onSelectedSourceFolder(e:Event):void
+			{
+				this.sourcePath.text = selectedSaveFile.nativePath;
+				
+				sourceUrl = selectedSaveFile.url;
+			}
+			
+			private var sourceUrl:String;
+			
+			
+			private var selectedOutFolder:File;
+			
+			protected function chooseOutput(event:MouseEvent):void
+			{
+				selectedOutFolder = new File();
+				selectedOutFolder.addEventListener(Event.SELECT, onSelectedOutputFolder);
+				selectedOutFolder.browseForDirectory("请选择输出目录");
+			}
+			
+			protected function onSelectedOutputFolder(event:Event):void
+			{
+				this.outputPathText.text = selectedOutFolder.nativePath;
+				
+				outputPath = selectedOutFolder.url;
+			}
+			
+			private var outputPath:String;
+			
+			private var startRunTime:int;
+			
+			private function start():void
+			{
+				if (this.selectedSaveFile == null || this.selectedOutFolder == null)
+				{
+					Alert.show("请选择输入输出");
+					
+					return;
+				}
+				
+				shareObject.data[this.sourcePathKey] = this.selectedSaveFile.url;
+				
+				shareObject.data[this.outputPathKey] = this.selectedOutFolder.url;
+				
+				shareObject.flush();
+					
+				startRunTime = flash.utils.getTimer();
+				
+				finishedFileCount = 0;
+				
+				this.waitFiles.length = 0;
+				
+				this.findNeedFiles(this.selectedSaveFile);
+				
+				this.totalFileCount = this.waitFiles.length;
+				
+				this.checkNextFile();
+			}
+			
+			private var avardObjct:Object;
+			
+			private final function restorDone() : void
+			{
+				
+			}
+			
+			private var configFile:File;
+			
+			private var configLoader:URLStream;
+	
+			private var totalFileCount:int;
+			
+			private var finishedFileCount:int;
+			
+			private var waitFiles:Array = [];
+			
+			
+			private function findNeedFiles(parentFile:File):void
+			{
+				if (parentFile.isDirectory)
+				{
+					var tempSubfiles:Array = parentFile.getDirectoryListing();
+					
+					for each (var file:File in tempSubfiles)
+					{
+						findNeedFiles(file);
+					}
+				}
+				else
+				{
+					if (parentFile.type == ".spt3")
+					{
+						waitFiles.push(parentFile);
+					}
+				}
+			}
+			
+			private function checkNextFile():void
+			{
+				if (waitFiles.length > 0)
+				{
+					firstFile = waitFiles.shift();
+					
+					urlLoader = new URLLoader();
+					urlLoader.dataFormat = URLLoaderDataFormat.BINARY;
+					urlLoader.addEventListener(Event.COMPLETE, urlLoadComplete);
+					
+					urlLoader.load(new URLRequest(firstFile.url));
+					
+					return;
+					
+				}
+				
+			}
+			
+			private var firstFile:File;
+			
+			private function urlLoadComplete(e:Event):void
+			{
+				urlLoader.removeEventListener(Event.COMPLETE, urlLoadComplete);
+				
+				var ba:ByteArray = e.target.data;
+				
+				ba.position = 0;
+				
+				var hasClassObject:Boolean = xiyouDomain.hasDefinition("disPlayEngine.resmgr.bean.Spt3AnimationPack");
+				
+				if (hasClassObject)
+				{
+				}
+				else
+				{
+					return;
+				}
+				
+				trace("start:" + firstFile.url);
+				
+				var relativePath:String = firstFile.url.replace(selectedSaveFile.url, "");
+				
+				relativePath = relativePath.substring(0, relativePath.indexOf("."));
+				
+				var folderName:String = outputPath + "/output/" + relativePath + "/";
+				
+				if (firstFile.type == ".mp")
+				{
+					relativePath = firstFile.url.replace(selectedSaveFile.url, "").replace(firstFile.name, "");
+					
+					folderName = outputPath + "/output/" + relativePath;
+				}
+				
+				var ana:SptAnalyze = new SptAnalyze();
+				
+				var $data:BaseAnalyzeVo = new BaseAnalyzeVo();
+				$data.fileName = firstFile.name;
+				$data.inputFileUrl = firstFile.url;
+				$data.folderName = folderName;
+				$data.loadCallback = loadCallback;
+				$data.bytes = ba;
+				
+				save[ana] = true;
+				
+				currentText.text = firstFile.name;
+
+				ana.process($data);
+				return;
+				try
+				{
+					ana.process($data);
+				}
+				catch(e:Error)
+				{
+					trace(firstFile.name + " error:" + e.toString())
+					
+					loadCallback(ana);
+				}
+			}
+			
+			private var save:Dictionary = new Dictionary();
+			
+			private var urlLoader:URLLoader;
+			
+			private var isWorking:Boolean = false;
+			
+			private function loadAftCallback(ana:BaseAnalyze):void
+			{
+				finishedFileCount++;
+				
+				save[ana] = null;
+				
+				delete save[ana];
+				
+				processText.text = finishedFileCount + "/" + totalFileCount;
+				
+				if (finishedFileCount == totalFileCount)
+				{
+					isWorking = false;
+					
+					var endTime:int = flash.utils.getTimer();
+					
+					var seconds:int = (endTime - startRunTime)/1000;
+					
+					var minutes:int = seconds/60;
+					
+					var s:int = seconds - minutes*60;
+					
+					if (minutes > 0)
+					{
+						Alert.show("完成耗时" + minutes + "分钟" + s + "秒");
+					}
+					else
+					{
+						Alert.show("完成耗时" + s + "秒");
+					}
+					
+					return;
+				}
+				
+				this.checkNextGenerateAtfFile();
+			}
+			
+			private function loadCallback(ana:BaseAnalyze):void
+			{
+				finishedFileCount++;
+				
+				save[ana] = null;
+				
+				delete save[ana];
+				
+				processText.text = finishedFileCount + "/" + totalFileCount;
+				
+				if (finishedFileCount == totalFileCount)
+				{
+					isWorking = false;
+					
+					var endTime:int = flash.utils.getTimer();
+					
+					var seconds:int = (endTime - startRunTime)/1000;
+					
+					var minutes:int = seconds/60;
+					
+					var s:int = seconds - minutes*60;
+					
+					if (minutes > 0)
+					{
+						Alert.show("完成耗时" + minutes + "分钟" + s + "秒");
+					}
+					else
+					{
+						Alert.show("完成耗时" + s + "秒");
+					}
+
+					return;
+				}
+				
+				checkNextFile();
+			}
+			
+			private function startGenerateAtf():void
+			{
+				finishedFileCount = 0;
+				
+				this.waitFiles.length = 0;
+				
+				this.findNeedFiles(this.selectedSaveFile);
+				
+				this.totalFileCount = this.waitFiles.length;
+				
+				checkNextGenerateAtfFile();
+			}
+			
+			private function checkNextGenerateAtfFile():void
+			{
+				if (waitFiles.length > 0)
+				{
+					firstFile = waitFiles.shift();
+					
+					urlLoader = new URLLoader();
+					urlLoader.dataFormat = URLLoaderDataFormat.BINARY;
+					urlLoader.addEventListener(Event.COMPLETE, atfUrlLoadComplete);
+					
+					urlLoader.load(new URLRequest(firstFile.url));
+					
+					return;
+					
+				}
+				
+			}
+			
+			private function atfUrlLoadComplete(e:Event):void
+			{
+				urlLoader.removeEventListener(Event.COMPLETE, atfUrlLoadComplete);
+				
+				var ba:ByteArray = e.target.data;
+				
+				ba.position = 0;
+				
+				trace("start:" + firstFile.url);
+				
+				var relativePath:String = firstFile.url.replace(selectedSaveFile.url, "");
+				
+				relativePath = relativePath.substring(0, relativePath.indexOf("."));
+				
+				var folderName:String = outputPath + "/output/" + relativePath + "/";
+				
+				if (firstFile.type == ".mp")
+				{
+					relativePath = firstFile.url.replace(selectedSaveFile.url, "").replace(firstFile.name, "");
+					
+					folderName = outputPath + "/output/" + relativePath;
+				}
+				
+				var ana:SptAnalyze = new SptAnalyze();
+				
+				var $data:BaseAnalyzeVo = new BaseAnalyzeVo();
+				$data.fileName = firstFile.name;
+				$data.inputFileUrl = firstFile.url;
+				$data.folderName = folderName;
+				$data.loadCallback = loadCallback;
+				$data.bytes = ba;
+				
+				save[ana] = true;
+				
+				currentText.text = firstFile.name;
+				
+				try
+				{
+					ana.process($data);
+				}
+				catch(e:Error)
+				{
+					trace(firstFile.name + " error:" + e.toString())
+					
+					loadCallback(ana);
+				}
+				
+				if (waitFiles.length == 0)
+				{
+					Alert.show("生成atf完成，请使用Atf2png工具生成png");
+				}
+			}
+			
+			private function loadAtfCallback(ana:BaseAnalyze):void
+			{
+				finishedFileCount++;
+				
+				save[ana] = null;
+				
+				delete save[ana];
+				
+				processText.text = finishedFileCount + "/" + totalFileCount;
+				
+				if (finishedFileCount == totalFileCount)
+				{
+					isWorking = false;
+					
+					var endTime:int = flash.utils.getTimer();
+					
+					var seconds:int = (endTime - startRunTime)/1000;
+					
+					var minutes:int = seconds/60;
+					
+					var s:int = seconds - minutes*60;
+					
+					if (minutes > 0)
+					{
+						Alert.show("完成耗时" + minutes + "分钟" + s + "秒");
+					}
+					else
+					{
+						Alert.show("完成耗时" + s + "秒");
+					}
+					
+					return;
+				}
+				
+				checkNextGenerateAtfFile();
+			}
+			
+			protected function selectVersionFileOutput(event:MouseEvent):void
+			{
+				this.webOutputFile = new File();
+				this.webOutputFile.addEventListener(Event.SELECT, onVersionOutputSelect);
+				
+				this.webOutputFile.browseForDirectory("选择采集输出目录");
+			}
+			
+			protected function onVersionOutputSelect(event:Event):void
+			{
+				this.verSourceSaveText.text = this.webOutputFile.nativePath;
+			}
+			
+			private function startCollection():void
+			{
+				if (this.webOutputFile == null)
+				{
+					Alert.show("输出目录为空");
+					
+					return;
+				}
+				
+				if (this.versionFile == null)
+				{
+					Alert.show("版本文件为空");
+					
+					return;
+				}
+
+				shareObject.data[caijiWebSourcePathKey] = this.webRootText.text;
+				
+				shareObject.data[caijiOutputPathKey] = this.webOutputFile.url;
+				
+				shareObject.data[this.versionFileKey] = this.versionFile.url;
+				
+				shareObject.flush();
+				
+				this.setCollectionTip("开始加载版本文件");
+				
+/* 				versioFileLoader = new URLLoader();
+				versioFileLoader.dataFormat = URLLoaderDataFormat.BINARY;
+				versioFileLoader.addEventListener(Event.COMPLETE, onLoadVersionFileComlete);
+				
+				var url:String = this.webRootText.text + "/" + "version.ver" + "?ver=" + new Date().time;
+				
+				var loaderContext:LoaderContext = new LoaderContext();
+				loaderContext.allowCodeImport = true;
+				
+				versioFileLoader.load(new URLRequest(url)); */
+				
+				var $fs:FileStream = new FileStream();
+				$fs.open(this.versionFile, FileMode.READ);
+				var data:ByteArray = new ByteArray();
+				$fs.readBytes(data, 0, $fs.bytesAvailable);
+				$fs.close();
+			
+				onLoadVersionFileComlete(data);
+			}
+			
+			
+			protected function onLoadVersionFileComlete(data:ByteArray):void
+			{
+				this.setCollectionTip("加载版本文件完成");
+				
+				data.uncompress();
+				
+//				var errorUrl:String = "http://resbsyjstm.utogame.com/res_jstm/v1.0.0.100//uiimg/res/img/comimg/cell/生存者战袍.png?ver=e779bdec05bc91ccda5d7540d7ac296f";
+				
+				var versionString:String = String(data);
+				
+/* 				var file:File = new File("e:/tangmeng/version.txt");
+				var fs:FileStream = new FileStream();
+				fs.open(file, FileMode.WRITE);
+				fs.writeUTFBytes(versionString);
+				fs.close();
+				
+				return; */
+				collectionFileUrls = versionString.split("\r\n");
+				
+//				collectionFileUrls.push(errorUrl);
+				
+				totalCollectionFileCount = collectionFileUrls.length;
+				
+				finishedCollectionFileCount = 0;
+				
+				this.addEventListener(Event.ENTER_FRAME, onVersionEnterFrame);
+				
+	
+				checkLoadCollectionFile();
+			}
+			
+			private function checkLoadCollectionFile():void
+			{
+				if (this.collectionFileUrls.length > 0)
+				{
+					var k:String = this.collectionFileUrls.shift();
+					
+					var t:Array = k.split(",");
+					
+					var $relativeUrl:String = t[0];
+					
+					var $sourcePrePath:String = this.webRootText.text;
+					
+					var $outputPath:String = this.webOutputFile.url + "/";
+					
+					loadOneFile.load($sourcePrePath + $relativeUrl + "?ver=" + t[1], $relativeUrl, $outputPath, onOneVersionLoadComplete);
+					
+				}
+				else
+				{
+					this.removeEventListener(Event.ENTER_FRAME, onVersionEnterFrame);
+					
+					Alert.show("下载完成");
+				}
+			}
+			
+			private function onOneVersionLoadComplete():void
+			{
+				finishedCollectionFileCount++;
+				
+				checkLoadCollectionFile();
+			}
+			
+			private function onVersionEnterFrame(e:Event):void
+			{
+				this.setCollectionTip("完成" + finishedCollectionFileCount + "/" + totalCollectionFileCount);
+			}
+			
+			private var loadOneFile:LoadOneFile = new LoadOneFile();
+			
+			private var versioFileLoader:URLLoader;
+			
+			private var collectionFileUrls:Array = [];
+			private var finishedCollectionFileCount:int;
+			
+			private var totalCollectionFileCount:int;
+			
+			private function setCollectionTip(value:String):void
+			{
+				if (value == null)
+				{
+					return;
+				}
+				
+				this.collectionTip.text = value;
+			}
+			
+			private function selectVersionFile():void
+			{
+				this.versionFile = new File();
+				this.versionFile.addEventListener(Event.SELECT, onVersionFileSelect);
+				this.versionFile.browse();
+			}
+			
+			public static const ACTION_IDLE:String = "idle";
+			
+			public static const ACTION_WALK:String = "walk";
+			
+			public static const ACTION_RUN:String = "run";
+			
+			public static const ACTION_FLASH:String = "flash";
+			
+			public static const ACTION_ATTACK_IDLE:String = "attackidle";
+			
+			public static const ACTION_ATTACK:String = "attack";
+			
+			public static const ACTION_MAGIC:String = "magic";
+			
+			public static const ACTION_DEAD:String = "dead";
+			
+			public static const ACTION_DASH:String = "dash";
+			
+			public static const ActionArr:Array = [ACTION_IDLE,ACTION_WALK,ACTION_RUN,ACTION_FLASH,ACTION_ATTACK_IDLE,ACTION_ATTACK,ACTION_MAGIC,ACTION_DEAD,ACTION_DASH];
+			
+			
+			protected function onVersionFileSelect(event:Event):void
+			{
+				this.versionFileText.text = versionFile.nativePath;
+			}
+			
+			private var xiyouSwfLoader:Loader;
+			
+			private function startLoadXiyouSwf():void
+			{
+				if (XiyouDomain.xiyouDomain != null)	
+				{
+					this.start();
+					return;
+				}
+				
+				xiyouDomain = new ApplicationDomain();
+
+				var loadContext:LoaderContext = new LoaderContext(false, xiyouDomain);
+				
+				xiyouSwfLoader = new Loader();
+				xiyouSwfLoader.contentLoaderInfo.addEventListener(Event.COMPLETE, onXiyouSwfComplete);
+				xiyouSwfLoader.load(new URLRequest("xiyoumain3.swf"), loadContext);
+			}
+			
+			private var xiyouDomain:ApplicationDomain;
+			
+			protected function onXiyouSwfComplete(event:Event):void
+			{
+				// TODO Auto-generated method stub
+				XiyouDomain.xiyouDomain = xiyouDomain;
+				
+				this.start();
+			}
+			
+		]]>
+	</fx:Script>
+	
+	
+	
+	<mx:VBox x="0" y="71">
+		
+		<mx:Text text="绝世唐门" fontSize="16" fontFamily="微软雅黑"/>
+		
+		<mx:HBox >
+			<s:Button label="选择输入目录" click="chooseSource(event)"/>
+			
+			<mx:Text id="sourcePath" width="500"/>
+		</mx:HBox>
+		
+		<mx:HBox>
+			<s:Button label="选择输出目录" click="chooseOutput(event)"/>
+			
+			<mx:Text id="outputPathText" width="500"/>
+		</mx:HBox>
+		
+		<mx:HBox >
+			<s:Button label="进度" click="chooseSource(event)"/>
+			
+			<mx:Text id="processText" width="500"/>
+		</mx:HBox>
+		
+		<mx:HBox>
+			
+			<s:Label text="当前处理文件" fontSize="14"/>
+			
+			<mx:Text id="currentText" width="500"/>
+		</mx:HBox>
+		
+		<mx:HBox>
+			<s:Button label="生成atf" click="startGenerateAtf()"/>
+			
+			<s:Button label="开始" click="startLoadXiyouSwf()"/>
+		</mx:HBox>
+		
+	</mx:VBox>
+	
+	<mx:VBox y="300">
+		
+		<mx:HBox>
+			<s:Button label="选择版本文件" click="selectVersionFile()"/>
+			
+			<mx:Text id="versionFileText"  width="479"/>
+		</mx:HBox>
+		
+		<mx:HBox>
+			<s:Label text="选择采集网站根目录"/>
+				
+			<mx:TextInput id="webRootText"  width="479"/>
+		</mx:HBox>
+		
+		<mx:HBox>
+			<s:Button label="选择资源输出目录" click="selectVersionFileOutput(event)"/>
+			
+			<mx:Text id="verSourceSaveText"  width="479"/>
+		</mx:HBox>
+		
+		<mx:HBox>
+			<s:Button label="开始采集" click="startCollection()"/>
+			
+			<mx:Text id="collectionTip"  width="479"/>
+		</mx:HBox>
+	
+		
+	</mx:VBox>
+
+	<s:TextArea x="623" y="71" width="236" height="309"
+			   text="如何使用&#xd;1.运行GameExport选择输入和输出目录，点击生成atf,会在输入目录生成对应的atf&#xd;&#xd;2.运行atf2png选择刚才的输入目录，等处理完会弹出窗口，然后关闭atf2png &#xd;&#xd;3.运行GameExport，点击开始，生成对应序列图" fontSize="16"/>
+	
+	
+</s:Group>

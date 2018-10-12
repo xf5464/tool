@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:WindowedApplication xmlns:fx="http://ns.adobe.com/mxml/2009" 
+					   xmlns:s="library://ns.adobe.com/flex/spark" 
+					   xmlns:mx="library://ns.adobe.com/flex/mx"
+					   xmlns:xinfentian="subGame.fengtian.*" 
+					   xmlns:nuhun="subGame.nuhun.*"
+					   xmlns:jueshitangmeng="subGame.jueshitangmeng.*"
+					   xmlns:tianfuchuanqi="subGame.tianfuChuanqi.*"
+					   xmlns:juezhanshacheng="subGame.juezhanshachen.*"
+					   xmlns:zhanlongchuanqi="subGame.zanlongchuanqi.*"
+					   xmlns:zetianji="subGame.zetianji.*"
+					   xmlns:xiyouzhilu="subGame.xiyouzhilu.*"
+					   xmlns:sanrenchuanqi="subGame.sanrenchuanqi.*"
+					   xmlns:chiyue2="subGame.chiyue2.*"
+					   width="1200" height="600"
+					   creationComplete="windowedapplication1_creationCompleteHandler(event)">
+	<fx:Script>
+		<![CDATA[
+			import mx.collections.ArrayList;
+			import mx.events.FlexEvent;
+			
+			import spark.components.Group;
+			import spark.events.IndexChangeEvent;
+			
+			protected function windowedapplication1_creationCompleteHandler(event:FlexEvent):void
+			{
+				App.game = this;
+				
+				comboxData = new ArrayList();
+				comboxData.addItem({label:"怒魂-.asset", index:1});
+				comboxData.addItem({label:"新焚天之怒-.swf", index:2});
+				comboxData.addItem({label:"绝世唐门-.fra", index:3});
+				comboxData.addItem({label:"天斧传奇", index:4});
+				comboxData.addItem({label:"魔龙诀.qmr", index:5});
+				comboxData.addItem({label:"斩龙传奇.mdp", index:6});
+				comboxData.addItem({label:"择天记.vpk", index:7});
+				//				comboxData.addItem({label:"西游之路.spt3", index:8});
+				
+				comboxData.addItem({label:"散人传奇.sr", index:9});
+				comboxData.addItem({label:"赤月2.res", index:10});
+				
+				this.gameCombobox.dataProvider = comboxData;
+				
+				this.gameCombobox.selectedIndex = 0;
+				
+				setTargetPanelVisible(1);
+			}
+			
+			private var comboxData:ArrayList;
+			
+			protected function combobox1_changeHandler(event:IndexChangeEvent):void
+			{
+				// TODO Auto-generated method stub
+				setTargetPanelVisible((event.target as ComboBox).selectedItem.index);
+			}
+			
+			private function setTargetPanelVisible(index:int):void
+			{
+				for each (var data:Object in comboxData.source)
+				{
+					var group:Group = this["panel" + data.index] as Group;
+					
+					if (group == null)
+					{
+						continue;
+					}
+					
+					group.visible = index == data.index;
+				}
+			}
+			
+			public function addTestChild(bmda:BitmapData):void
+			{
+				/* 				var bitmap:Bitmap = new Bitmap(bmda);
+				bitmap.blendMode = BlendMode.ADD;
+				this.testContainer.rawChildren.addChild(bitmap); */
+			}
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	
+	
+	<s:ComboBox id="gameCombobox" x="10" y="100" width="204" change="combobox1_changeHandler(event)"/>
+	
+	<nuhun:ExportNuhun id="panel1" x="234" y="100" width="910"/>
+	
+	<xinfentian:ExportFengtian id="panel2" x="234" y="100" width="910"/>
+	
+	<jueshitangmeng:ExportJueshitangmeng id="panel3" x="234" y="100" width="910"/>
+	
+	<tianfuchuanqi:ExportTianfuchuanqi id="panel4" x="234" y="100" width="910"/>
+	
+	<juezhanshacheng:ExportJuezhanshacheng id="panel5" x="234" y="100" width="910"/>
+	
+	<zhanlongchuanqi:Zhanlongchuanqi id="panel6" x="234" y="100" width="910"/>
+	
+	<zetianji:Zetianji id="panel7" x="234" y="100" width="910"/>
+	
+	<xiyouzhilu:Export id="panel8" x="234" y="100" width="910" visible="false"/>
+	
+	<sanrenchuanqi:Export id="panel9" x="234" y="100" width="910" visible="false"/>
+	
+	<chiyue2:Export id="panel10" x="234" y="100" width="910" visible="false"/>
+	
+	<mx:Canvas id="testContainer" width="1200" height="600" visible="false"/>
+	
+</s:WindowedApplication>

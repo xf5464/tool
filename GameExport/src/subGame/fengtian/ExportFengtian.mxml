@@ -1,0 +1,451 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009"
+					   xmlns:s="library://ns.adobe.com/flex/spark"
+					   xmlns:mx="library://ns.adobe.com/flex/mx"
+					   width="900" height="500"
+					   addedToStage="onCreateComplete()">
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	
+	<fx:Script>
+		<![CDATA[
+			import subGame.fengtian.zip.FZipLoader;
+			import mx.controls.Alert;
+			
+			private var selectedSaveFile:File;
+			
+			private var shareObject:SharedObject;
+			
+			private const SHARE_OBJECT_NAME:String = "xinfengtian";
+			
+			private function get sourcePathKey():String
+			{
+				return SHARE_OBJECT_NAME + "SourcePath";
+			}
+			
+			private function get outputPathKey():String
+			{
+				return SHARE_OBJECT_NAME + "OutputPath";
+			}
+			
+			private function get configDataKey():String
+			{
+				return SHARE_OBJECT_NAME + "ConfigDataPath";
+			}
+			
+			private function onCreateComplete():void
+			{
+				shareObject = SharedObject.getLocal(SHARE_OBJECT_NAME);
+				
+				if (shareObject.data.hasOwnProperty(sourcePathKey))
+				{
+					this.sourceUrl = shareObject.data[sourcePathKey];
+					
+					selectedSaveFile = new File(this.sourceUrl);
+					
+					this.sourcePath.text = selectedSaveFile.nativePath;
+				}
+				
+				if (shareObject.data.hasOwnProperty(outputPathKey))
+				{
+					this.outputPath = shareObject.data[outputPathKey];
+					
+					selectedOutFolder = new File(this.outputPath)
+						
+					this.outputPathText.text = selectedOutFolder.nativePath;
+				}
+				
+				if (shareObject.data.hasOwnProperty(configDataKey))
+				{
+					var path:String = shareObject.data[configDataKey];
+					
+					configFile = new File(path);
+					
+					this.configDataText.text = configFile.nativePath;
+					
+					onSelect(null);
+				}
+			}
+			
+			protected function chooseSource(event:MouseEvent):void
+			{
+				selectedSaveFile = new File();
+				selectedSaveFile.addEventListener(Event.SELECT, onSelectedSourceFolder);
+				selectedSaveFile.browseForDirectory("请选择资源目录");
+			}
+			
+			private function onSelectedSourceFolder(e:Event):void
+			{
+				this.sourcePath.text = selectedSaveFile.nativePath;
+				
+				sourceUrl = selectedSaveFile.url;
+			}
+			
+			private var sourceUrl:String;
+			
+			
+			private var selectedOutFolder:File;
+			
+			protected function chooseOutput(event:MouseEvent):void
+			{
+				selectedOutFolder = new File();
+				selectedOutFolder.addEventListener(Event.SELECT, onSelectedOutputFolder);
+				selectedOutFolder.browseForDirectory("请选择输出目录");
+			}
+			
+			protected function onSelectedOutputFolder(event:Event):void
+			{
+				this.outputPathText.text = selectedOutFolder.nativePath;
+				
+				outputPath = selectedOutFolder.url;
+			}
+			
+			private var outputPath:String;
+			
+			private var startRunTime:int;
+			
+			private function loadConfig():void
+			{
+				var fs:FileStream = new FileStream();
+				fs.open(configFile, FileMode.READ);
+				var data:ByteArray = new ByteArray();
+				fs.readBytes(data, 0, fs.bytesAvailable);
+				fs.close();
+				
+				var _loc5_:FZipLoader = new FZipLoader();
+				_loc5_.restorOtherFun = initConfig;
+				_loc5_.restorFile(data, restorDone);
+			}
+			
+			private function start():void
+			{
+				if (this.selectedSaveFile == null || this.selectedOutFolder == null || this.modelDataDic == null)
+				{
+					Alert.show("请选择输入输出或者config.data文件");
+					
+					return;
+				}
+				
+				shareObject.data[this.sourcePathKey] = this.selectedSaveFile.url;
+				
+				shareObject.data[this.outputPathKey] = this.selectedOutFolder.url;
+				
+				shareObject.data[this.configDataKey] = this.configFile.url;
+				
+				shareObject.flush();
+					
+				startRunTime = flash.utils.getTimer();
+				
+				finishedFileCount = 0;
+				
+				this.waitFiles.length = 0;
+				
+				this.findNeedFiles(this.selectedSaveFile);
+				
+				this.totalFileCount = this.waitFiles.length;
+				
+				this.checkNextFile();
+			}
+			
+			private const IVNALID_KEYS:Array = ["avatar","weapon","npc","skill","effect","wing","showc","showw","showwing","rideman","ridemanhead","showride"];
+			
+			private var modelDataDic:Dictionary = new Dictionary();
+			
+			private final function initConfig(_loc4_:String, param2:*) : void
+			{
+				if (IVNALID_KEYS.indexOf(_loc4_) != -1)
+				{
+					param2.position = 0;
+					param2.uncompress();
+					
+					var _loc3_:Object = param2.readObject();
+					
+					modelDataDic[_loc4_] = _loc3_;
+					
+					trace(_loc4_);
+					
+				}
+				
+				return;
+				
+				if (IVNALID_KEYS.indexOf(_loc4_) == -1)
+				{
+					
+					param2.position = 0;
+					param2.uncompress();
+					var _loc3_:Object = param2.readObject();
+					
+					trace(_loc4_);
+				}
+			}
+			
+			private var avardObjct:Object;
+			
+			private final function restorDone() : void
+			{
+				this.start();
+			}
+			
+			private function selectConfigData():void
+			{
+				configFile = new File();
+				configFile.addEventListener(Event.SELECT, onSelect);
+				configFile.browse([new FileFilter("config.data文件", "*.data")]);
+			}
+			
+			private var configFile:File;
+			
+			private var configLoader:URLStream;
+	
+			private var totalFileCount:int;
+			
+			private var finishedFileCount:int;
+			
+			private var waitFiles:Array = [];
+			
+			
+			protected function onSelect(event:Event):void
+			{
+				// TODO Auto-generated method stub
+				configDataUrl = configFile.url;
+				this.configDataText.text = configFile.nativePath;
+			}
+			
+			private var configDataUrl:String;
+			
+			private function findNeedFiles(parentFile:File):void
+			{
+				if (parentFile.isDirectory)
+				{
+					var tempSubfiles:Array = parentFile.getDirectoryListing();
+					
+					for each (var file:File in tempSubfiles)
+					{
+						findNeedFiles(file);
+					}
+				}
+				else
+				{
+					if (parentFile.type == ".swf")
+					{
+						var isTargetAnimation:Boolean = false;
+						
+						for each (var action:String in ActionArr)
+						{
+							if (parentFile.name.indexOf("_" + action) != -1)
+							{
+								isTargetAnimation = true;
+								
+								break;
+							}
+						}
+						
+						if (!isTargetAnimation)
+						{
+							return;
+						}
+						
+						waitFiles.push(parentFile);
+					}else
+					{
+						if (parentFile.type == ".rs")
+						{
+							waitFiles.push(parentFile);
+						}
+					}
+				}
+				
+			}
+			
+			private function checkNextFile():void
+			{
+				if (waitFiles.length > 0)
+				{
+					firstFile = waitFiles.shift();
+					
+					urlLoader = new URLLoader();
+					urlLoader.dataFormat = URLLoaderDataFormat.BINARY;
+					urlLoader.addEventListener(Event.COMPLETE, urlLoadComplete);
+					
+					urlLoader.load(new URLRequest(firstFile.url));
+					
+					return;
+					
+				}
+				
+			}
+			
+			private var firstFile:File;
+			
+			private function urlLoadComplete(e:Event):void
+			{
+				urlLoader.removeEventListener(Event.COMPLETE, urlLoadComplete);
+				
+				var ba:ByteArray = e.target.data;
+				
+				ba.position = 0;
+				
+				trace("start:" + firstFile.url);
+				
+				var relativePath:String = firstFile.url.replace(selectedSaveFile.url, "");
+				
+				relativePath = relativePath.substring(0, relativePath.indexOf("."));
+				
+				var folderName:String = outputPath + "/output/" + relativePath + "/";
+				
+				var ana:Analyze = new Analyze(folderName, loadCallback);
+				
+				save[ana] = true;
+				
+				currentText.text = firstFile.name;
+
+				if (firstFile.type == ".swf")
+				{
+					var skinId:int = int(firstFile.name.substring(0, firstFile.name.indexOf("_")));
+					
+					var index1:int = firstFile.name.indexOf("_");
+					
+					var index2:int = firstFile.name.indexOf(".");
+					
+					var actionName:String = firstFile.name.substring(index1 + 1, index2);
+					
+					try
+					{
+						ana.ana(ba, skinId, actionName, modelDataDic,folderName);
+					}
+					catch(e:Error)
+					{
+						trace(firstFile.name + " error:" + e.toString())
+						
+						loadCallback(ana);
+					}
+				}
+				else if (firstFile.type == ".rs")
+				{
+					try
+					{
+						ana.analyzeRsFile(ba, folderName);
+					}
+					catch(e:Error)
+					{
+						trace(firstFile.name + " error:" + e.toString())
+						
+						loadCallback(ana);
+					}
+				}
+			}
+			
+			private var save:Dictionary = new Dictionary();
+			
+			private var urlLoader:URLLoader;
+			
+			private var isWorking:Boolean = false;
+			
+			private function loadCallback(ana:Analyze):void
+			{
+				finishedFileCount++;
+				
+				save[ana] = null;
+				
+				delete save[ana];
+				
+				processText.text = finishedFileCount + "/" + totalFileCount;
+				
+				if (finishedFileCount == totalFileCount)
+				{
+					isWorking = false;
+					
+					var endTime:int = flash.utils.getTimer();
+					
+					var seconds:int = (endTime - startRunTime)/1000;
+					
+					var minutes:int = seconds/60;
+					
+					var s:int = seconds - minutes*60;
+					
+					if (minutes > 0)
+					{
+						Alert.show("完成耗时" + minutes + "分钟" + s + "秒");
+					}
+					else
+					{
+						Alert.show("完成耗时" + s + "秒");
+					}
+
+					return;
+				}
+				
+				checkNextFile();
+			}
+			
+			
+			public static const ACTION_IDLE:String = "idle";
+			
+			public static const ACTION_WALK:String = "walk";
+			
+			public static const ACTION_RUN:String = "run";
+			
+			public static const ACTION_FLASH:String = "flash";
+			
+			public static const ACTION_ATTACK_IDLE:String = "attackidle";
+			
+			public static const ACTION_ATTACK:String = "attack";
+			
+			public static const ACTION_MAGIC:String = "magic";
+			
+			public static const ACTION_DEAD:String = "dead";
+			
+			public static const ACTION_DASH:String = "dash";
+			
+			public static const ActionArr:Array = [ACTION_IDLE,ACTION_WALK,ACTION_RUN,ACTION_FLASH,ACTION_ATTACK_IDLE,ACTION_ATTACK,ACTION_MAGIC,ACTION_DEAD,ACTION_DASH];
+			
+			
+		]]>
+	</fx:Script>
+	
+	
+	
+	<mx:VBox x="0" y="71">
+		
+		<mx:Text text="新焚天传奇" fontSize="16" fontFamily="微软雅黑"/>
+		
+		<mx:HBox >
+			<s:Button label="选择输入目录" click="chooseSource(event)"/>
+			
+			<mx:Text id="sourcePath" width="500"/>
+		</mx:HBox>
+		
+		<mx:HBox>
+			<s:Button label="选择输出目录" click="chooseOutput(event)"/>
+			
+			<mx:Text id="outputPathText" width="500"/>
+		</mx:HBox>
+		
+		<mx:HBox>
+			
+			<s:Button label="选择configData" fontSize="14" click="selectConfigData()"/>
+			
+			<mx:Text id="configDataText" width="500"/>
+		</mx:HBox>
+		
+		<mx:HBox >
+			<s:Button label="进度" click="chooseSource(event)"/>
+			
+			<mx:Text id="processText" width="500"/>
+		</mx:HBox>
+		
+		<mx:HBox>
+			
+			<s:Label text="当前处理文件" fontSize="14"/>
+			
+			<mx:Text id="currentText" width="500"/>
+		</mx:HBox>
+		
+		
+	</mx:VBox>
+	
+	<s:Button x="406" y="251" label="开始" click="loadConfig()"/>
+	
+	
+</s:Group>
