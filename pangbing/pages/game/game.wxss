@@ -1,0 +1,32 @@
+.userinfo-avatar {
+  width: 80rpx;
+  height: 80rpx;
+  margin: 20rpx;
+  border-radius: 50%;
+}
+
+.userinfo-nickname {
+  color: #aaa;
+}
+
+.text-style {
+  text-align: center;
+}
+
+.center-view {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.record-view {
+    display: flex;
+  align-items: center;
+  justify-content: space-around;
+}
+
+.line{
+    height: 3rpx;
+    width:100vw;
+    background-color: #E0E1E2;
+}

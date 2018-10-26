@@ -1,0 +1,22 @@
+<view class="main-view">
+
+  <view class="row-view" style="height:7vh">
+    <text class="left-text">qq群</text>
+    <text class="right-text">{{qqGroup}}</text>
+  </view>
+
+  <view class="row-view" style="height:7vh">
+    <text class="left-text">网易云音乐</text>
+    <text class="right-text">{{music163}}</text>
+  </view>
+
+  <view class="row-view"  style="height:7vh">
+    <text class="left-text">斗鱼</text>
+    <text class="right-text" style="color:#999">{{douyu}}</text>
+    <!-- <view class="row-view">
+      <text class="right-text" style="color:#999">{{douyu}}</text>
+      <button open-type="launchApp" app-parameter="wechat" binderror="launchAppError" class="btn1">打开</button>
+    </view> -->
+  </view>
+
+</view>

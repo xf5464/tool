@@ -1,0 +1,49 @@
+/* pages/contact/contact.wxss */
+
+.row-view {
+  width:70vw;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.main-view {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.base-info {
+  color: #ffffff;
+  font-size: 18px;
+}
+
+.line{
+    height: 2rpx;
+    width:100%;
+    background-color: #E0E1E2;
+}
+
+.left-text{
+  width: 35vw;
+  text-align:left;
+  color:#444
+}
+
+.right-text{
+  color:#999
+}
+
+.btn1 {
+  width: 20rpx;
+  margin-top: 20rpx;
+  background-color: burlywood;
+  color: white;
+  border-radius: 5rpx;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+}
