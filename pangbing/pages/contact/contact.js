@@ -6,9 +6,23 @@ Page({
    * 页面的初始数据
    */
   data: {
-    qqGroup:'12345',
-    douyu:'12345',
-    music163:'123456'
+    qqGroup:'691394132',
+    douyu:'628569',
+    music163:'抹抹茶冰阿冰',
+    weibo:'抹茶味Icecream'
+  },
+
+  copyText:function(e, text){
+    wx.setClipboardData({
+      data: e.target.dataset.copyValue,
+      success: function (res) {
+        wx.getClipboardData({
+          success: function (res) {
+            console.log(res.data) // data
+          }
+        })
+      }
+    })
   },
 
   /**
@@ -67,4 +81,5 @@ Page({
   onShareAppMessage: function () {
     
   }
+
 })

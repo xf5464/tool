@@ -6,10 +6,11 @@
     "pages/game/game"
   ],
   "window":{
-    "backgroundTextStyle":"light",
-    "navigationBarBackgroundColor": "#fff",
-    "navigationBarTitleText": "WeChat",
-    "navigationBarTextStyle":"black"
+    "backgroundTextStyle": "light",
+    "navigationBarBackgroundColor": "#2B2B2B",
+    "navigationBarTitleText": "胖冰养殖基地",
+    "navigationBarTextStyle": "white",
+    "backgroundColor": "#060606"
   },
 
   "tabBar":{
@@ -27,13 +28,7 @@
         "selectedIconPath":"images/icon/group_selected.png",
         "iconPath":"images/icon/group.png",
         "pagePath": "pages/contact/contact",
-        "text":"联络"
-      },
-      {
-        "selectedIconPath": "images/icon/game_selected.png",
-        "iconPath": "images/icon/game.png",
-        "pagePath": "pages/game/game",
-        "text": "游戏"
+        "text":"联系"
       }
 
     ]

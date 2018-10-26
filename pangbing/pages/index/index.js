@@ -16,7 +16,8 @@ Page({
       "http://97.64.22.39/res/images/bingbing/1.jpg",
       "http://97.64.22.39/res/images/bingbing/2.jpg",
       "http://97.64.22.39/res/images/bingbing/3.jpg",
-      "http://97.64.22.39/res/images/bingbing/4.jpg"
+      "http://97.64.22.39/res/images/bingbing/4.jpg",
+      "http://97.64.22.39/res/images/bingbing/5.jpg"
     ]
   },
   //事件处理函数
