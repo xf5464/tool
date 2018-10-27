@@ -1,0 +1,36 @@
+{
+  "pages":[
+    "pages/index/index",
+    "pages/logs/logs",
+    "pages/contact/contact",
+    "pages/game/game"
+  ],
+  "window":{
+    "backgroundTextStyle": "light",
+    "navigationBarBackgroundColor": "#2B2B2B",
+    "navigationBarTitleText": "胖冰养殖基地",
+    "navigationBarTextStyle": "white",
+    "backgroundColor": "#060606"
+  },
+
+  "tabBar":{
+    "color":"#a9b7b7",
+    "selectedColor":"#11cb6e",
+    "borderStyle":"white",
+    "list":[
+      {
+        "selectedIconPath": "images/icon/plane_selected.png",
+        "iconPath": "images/icon/plane.png",
+        "pagePath": "pages/index/index",
+        "text": "胖冰"
+      },
+      {
+        "selectedIconPath":"images/icon/group_selected.png",
+        "iconPath":"images/icon/group.png",
+        "pagePath": "pages/contact/contact",
+        "text":"联系"
+      }
+
+    ]
+  }
+}
