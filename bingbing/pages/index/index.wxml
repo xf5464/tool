@@ -12,7 +12,7 @@
   <swiper style="height:{{imgheights[currentIndex]}}rpx;width: 100%" bindchange='onBindImageChange'>
     <block wx:for="{{bg_images}}" wx:key="{{index}}">
       <swiper-item>
-        <image src="{{item}}" mode='widthFix' bindload='onImageLoadComplete' data-id='{{index}}'> </image>
+        <image src="{{item}}" mode='aspectFill' bindload='onImageLoadComplete' data-id='{{index}}' style="width:100%"> </image>
       </swiper-item>
     </block>
   </swiper>

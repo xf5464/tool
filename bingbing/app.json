@@ -16,7 +16,7 @@
   "tabBar":{
     "color":"#a9b7b7",
     "selectedColor":"#11cb6e",
-    "borderStyle":"white",
+    "borderStyle":"black",
     "list":[
       {
         "selectedIconPath": "images/icon/plane_selected.png",
